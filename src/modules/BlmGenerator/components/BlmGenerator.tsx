@@ -29,16 +29,17 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
     }
 
     public render() {
+        const { blmModel, blmLineLength } = this.state;
         return(
             <Grid container direction="row" className="blm-graph">
                 <Grid container>
-                    <Button onClick={() => this.generateBlmModel()} color="primary">
+                    <Button onClick={() => this.generateBlmModel()} color="primary" variant="outlined">
                         Generate New Graph
                     </Button>
                 </Grid>
                 {
-                    this.state.blmModel.map((item: boolean[], i: number) => {
-                        return <GraphColumn column={item} key={i} blmLineLength={this.state.blmLineLength}/>;
+                    blmModel.map((item: boolean[], i: number) => {
+                        return <GraphColumn column={item} key={i} blmLineLength={blmLineLength}/>;
                     })
                 }
             </Grid>
@@ -46,6 +47,20 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
     }
 
     private generateBlmModel() {
+        const { lineHeight } = this.props;
+
+        const blmModel = this.createEmptyArray();
+        let blmChunkedModel: boolean[][] = _.chunk(blmModel, lineHeight);
+        blmChunkedModel = this.deleteEmptyColumns(blmChunkedModel);
+        blmChunkedModel = this.setSingleElementsCloseToThemselves(blmChunkedModel);
+
+        this.setState({
+            blmModel: blmChunkedModel,
+            blmLineLength: blmChunkedModel.length,
+        });
+    }
+
+    private createEmptyArray(): boolean[] {
         const { lineHeight, lineLength, machines } = this.props;
         let blmModel: boolean[] = [];
         const arrayElements: number = lineHeight * lineLength;
@@ -56,7 +71,11 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
             : blmModel[i] = false;
         }
         blmModel = _.shuffle(blmModel);
-        let blmChunkedModel: boolean[][] = _.chunk(blmModel, lineHeight);
+        return blmModel;
+    }
+
+    private deleteEmptyColumns(blmChunkedModel: boolean[][]): boolean[][] {
+        const { lineHeight } = this.props;
         blmChunkedModel =  _.remove(blmChunkedModel, (n: boolean[]) => {
             let shouldDelete: boolean = true;
             for (let i = 0; i <= lineHeight; i++) {
@@ -64,8 +83,11 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
             }
             return !(shouldDelete);
         });
+        return blmChunkedModel;
+    }
 
-        // Checking if there are single elements close to them
+    private setSingleElementsCloseToThemselves(blmChunkedModel: boolean[][]): boolean[][] {
+        const { lineHeight } = this.props;
         for (let i = 1; i < blmChunkedModel.length; i++) {
             let machinesInColumn: number = 0;
             let positionInPreviousObject: number = 0;
@@ -91,9 +113,6 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
                 }
             }
         }
-        this.setState({
-            blmModel: blmChunkedModel,
-            blmLineLength: blmChunkedModel.length,
-        });
+        return blmChunkedModel;
     }
 }
