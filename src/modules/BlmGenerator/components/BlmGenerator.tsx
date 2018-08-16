@@ -3,20 +3,15 @@ import * as React from 'react';
 import { Button, Grid } from '@material-ui/core';
 import * as _ from 'lodash';
 import { GraphColumn } from '..';
-
-interface IBlmGeneratorProps {
-    machines: number;
-    lineLength: number;
-    lineHeight: number;
-}
+import { lineHeight, lineLength, machines } from '../../../settings';
 
 interface IBlmGeneratorState {
     blmModel: boolean[][];
     blmLineLength: number;
 }
 
-export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGeneratorState> {
-    constructor(props: IBlmGeneratorProps) {
+export class BlmGenerator extends React.Component<{}, IBlmGeneratorState> {
+    constructor(props: {}) {
         super(props);
         this.state = {
             blmModel: [],
@@ -47,12 +42,11 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
     }
 
     private generateBlmModel() {
-        const { lineHeight } = this.props;
-
         const blmModel = this.createEmptyArray();
         let blmChunkedModel: boolean[][] = _.chunk(blmModel, lineHeight);
         blmChunkedModel = this.deleteEmptyColumns(blmChunkedModel);
         blmChunkedModel = this.setSingleElementsCloseToThemselves(blmChunkedModel);
+        blmChunkedModel = this.stickLonelyElementsToSchema(blmChunkedModel);
 
         this.setState({
             blmModel: blmChunkedModel,
@@ -61,7 +55,6 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
     }
 
     private createEmptyArray(): boolean[] {
-        const { lineHeight, lineLength, machines } = this.props;
         let blmModel: boolean[] = [];
         const arrayElements: number = lineHeight * lineLength;
 
@@ -75,7 +68,6 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
     }
 
     private deleteEmptyColumns(blmChunkedModel: boolean[][]): boolean[][] {
-        const { lineHeight } = this.props;
         blmChunkedModel =  _.remove(blmChunkedModel, (n: boolean[]) => {
             let shouldDelete: boolean = true;
             for (let i = 0; i <= lineHeight; i++) {
@@ -87,7 +79,6 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
     }
 
     private setSingleElementsCloseToThemselves(blmChunkedModel: boolean[][]): boolean[][] {
-        const { lineHeight } = this.props;
         for (let i = 1; i < blmChunkedModel.length; i++) {
             let machinesInColumn: number = 0;
             let positionInPreviousObject: number = 0;
@@ -114,5 +105,47 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
             }
         }
         return blmChunkedModel;
+    }
+
+    private stickLonelyElementsToSchema(blm: boolean[][]): boolean[][] {
+        let k: number;
+        let l: number;
+        let lonelyElementsCounter: number;
+        do {
+            lonelyElementsCounter = 0;
+            for (let i = 1; i < blm.length - 1; i++) {
+                for (let j = 0; j < lineHeight; j++) {
+                    if (j - 1 < 0) {k = 2; } else { k = j; }
+                    if (j + 1 > lineHeight - 1) {l = lineHeight - 3; } else { l = j; }
+                    if (
+                        blm[i][j] === true
+                        && blm[i - 1][k - 1] === false
+                        && blm[i - 1][j] === false
+                        && blm[i - 1][l + 1] === false
+                        && blm[i + 1][k - 1] === false
+                        && blm[i + 1][j] === false
+                        && blm[i + 1][l + 1] === false
+                    ) {
+                        blm[i][j] = false;
+                        blm = this.createNew(blm);
+                        blm = this.deleteEmptyColumns(blm);
+                        lonelyElementsCounter += 1;
+                    }
+                }
+            }
+        } while (lonelyElementsCounter !== 0);
+
+        return blm;
+    }
+
+    private createNew(blm: boolean[][]) {
+        let i;
+        let j;
+        do {
+            i = Math.floor(Math.random() * blm.length);
+            j = Math.floor(Math.random() * lineHeight);
+        } while (blm[i][j] === false);
+        blm[i][j] = true;
+        return blm;
     }
 }
