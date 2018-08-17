@@ -42,15 +42,25 @@ export class BlmGenerator extends React.Component<{}, IBlmGeneratorState> {
     }
 
     private generateBlmModel() {
-        const blmModel = this.createEmptyArray();
-        let blmChunkedModel: boolean[][] = _.chunk(blmModel, lineHeight);
-        blmChunkedModel = this.deleteEmptyColumns(blmChunkedModel);
-        blmChunkedModel = this.setSingleElementsCloseToThemselves(blmChunkedModel);
-        blmChunkedModel = this.stickLonelyElementsToSchema(blmChunkedModel);
+        let shouldReload: boolean;
+        let blm = _.chunk(this.createEmptyArray(), lineHeight);
+        let blmStateModel: boolean[][] = blm;
+
+        do {
+            blm = this.deleteEmptyColumns(blm);
+            blm = this.setSingleElementsInLine(blm);
+            blm = this.stickLonelyElementsToSchema(blm);
+            blm = this.connectFirstColumn(blm);
+
+            _.isEqual(blm, blmStateModel)
+                ? shouldReload = false
+                : shouldReload = true;
+            blmStateModel = Array.from(blm);
+        } while (shouldReload);
 
         this.setState({
-            blmModel: blmChunkedModel,
-            blmLineLength: blmChunkedModel.length,
+            blmModel: blm,
+            blmLineLength: blm.length,
         });
     }
 
@@ -67,30 +77,30 @@ export class BlmGenerator extends React.Component<{}, IBlmGeneratorState> {
         return blmModel;
     }
 
-    private deleteEmptyColumns(blmChunkedModel: boolean[][]): boolean[][] {
-        blmChunkedModel =  _.remove(blmChunkedModel, (n: boolean[]) => {
+    private deleteEmptyColumns(blm: boolean[][]): boolean[][] {
+        blm =  _.remove(blm, (n: boolean[]) => {
             let shouldDelete: boolean = true;
             for (let i = 0; i <= lineHeight; i++) {
                 if (n[i] === true) { shouldDelete = false; }
             }
             return !(shouldDelete);
         });
-        return blmChunkedModel;
+        return blm;
     }
 
-    private setSingleElementsCloseToThemselves(blmChunkedModel: boolean[][]): boolean[][] {
-        for (let i = 1; i < blmChunkedModel.length; i++) {
+    private setSingleElementsInLine(blm: boolean[][]): boolean[][] {
+        for (let i = 1; i < blm.length; i++) {
             let machinesInColumn: number = 0;
             let positionInPreviousObject: number = 0;
             for (let j = 0; j < lineHeight; j++) {
-                if (blmChunkedModel[i][j] === true) {
+                if (blm[i][j] === true) {
                     machinesInColumn += 1;
                 }
             }
             if (machinesInColumn === 1) {
                 machinesInColumn = 0;
                 for (let k = 0; k < lineHeight; k++) {
-                    if (blmChunkedModel[i - 1][k] === true) {
+                    if (blm[i - 1][k] === true) {
                         machinesInColumn += 1;
                         positionInPreviousObject = k;
                     }
@@ -98,47 +108,59 @@ export class BlmGenerator extends React.Component<{}, IBlmGeneratorState> {
                 if (machinesInColumn === 1) {
                     for (let l = 0; l < lineHeight; l++) {
                         l === positionInPreviousObject
-                            ? blmChunkedModel[i][l] = true
-                            : blmChunkedModel[i][l] = false;
+                            ? blm[i][l] = true
+                            : blm[i][l] = false;
                     }
                 }
             }
         }
-        return blmChunkedModel;
+        return blm;
     }
 
     private stickLonelyElementsToSchema(blm: boolean[][]): boolean[][] {
         let k: number;
         let l: number;
-        let lonelyElementsCounter: number;
-        do {
-            lonelyElementsCounter = 0;
-            for (let i = 1; i < blm.length - 1; i++) {
-                for (let j = 0; j < lineHeight; j++) {
-                    if (j - 1 < 0) {k = 2; } else { k = j; }
-                    if (j + 1 > lineHeight - 1) {l = lineHeight - 3; } else { l = j; }
-                    if (
-                        blm[i][j] === true
-                        && blm[i - 1][k - 1] === false
-                        && blm[i - 1][j] === false
-                        && blm[i - 1][l + 1] === false
-                        && blm[i + 1][k - 1] === false
-                        && blm[i + 1][j] === false
-                        && blm[i + 1][l + 1] === false
-                    ) {
-                        blm[i][j] = false;
-                        blm = this.createNew(blm);
-                        blm = this.deleteEmptyColumns(blm);
-                        lonelyElementsCounter += 1;
-                    }
+        for (let i = 1; i < blm.length - 1; i++) {
+            for (let j = 0; j < lineHeight; j++) {
+                if (j - 1 < 0) {k = 2; } else { k = j; }
+                if (j + 1 > lineHeight - 1) {l = lineHeight - 3; } else { l = j; }
+                if (
+                    blm[i][j] === true
+                    && blm[i - 1][k - 1] === false
+                    && blm[i - 1][j] === false
+                    && blm[i - 1][l + 1] === false
+                    && blm[i + 1][k - 1] === false
+                    && blm[i + 1][j] === false
+                    && blm[i + 1][l + 1] === false
+                ) {
+                    blm[i][j] = false;
+                    blm = this.createNewElement(blm);
                 }
             }
-        } while (lonelyElementsCounter !== 0);
-
+        }
         return blm;
     }
 
-    private createNew(blm: boolean[][]) {
+    private connectFirstColumn(blm: boolean[][]) {
+        let j: number;
+        let k: number;
+        for (let i = 0; i < lineHeight; i++) {
+            if (i - 1 < 0) {j = 1; } else { j = i; }
+            if (i + 1 > lineHeight - 1) {k = lineHeight - 2; } else { k = i; }
+            if (
+                blm[0][i] === true
+                && blm[1][j - 1] === false
+                && blm[1][i] === false
+                && blm[1][k + 1] === false
+            ) {
+                blm[0][i] = false;
+                blm = this.createNewElement(blm);
+            }
+        }
+        return blm;
+    }
+
+    private createNewElement(blm: boolean[][]) {
         let i;
         let j;
         do {

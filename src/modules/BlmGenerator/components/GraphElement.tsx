@@ -9,11 +9,11 @@ interface IGraphElementProps {
 export class GraphElement extends React.Component<IGraphElementProps, {}> {
     public render() {
         return(
-            <Grid className="blm-graph-element">
+            <Grid>
                 {
                     this.props.item
-                        ? <div style={{backgroundColor: '#00ff00'}}>:)</div>
-                        : <div>:(</div>
+                        ? <div style={{backgroundColor: '#0cb555'}} className="blm-graph-element"/>
+                        : <div className="blm-graph-element"/>
                 }
             </Grid>
         );
