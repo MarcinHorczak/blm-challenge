@@ -2,10 +2,12 @@ import * as React from 'react';
 
 import { Grid } from '@material-ui/core';
 import { GraphElement } from '..';
+import { IBlmEntity } from '../model';
 
 interface IGraphColumnProps {
-    column: boolean[];
+    column: IBlmEntity[];
     blmLineLength: number;
+    viewDetails: (item: IBlmEntity | undefined) => void;
 }
 
 export class GraphColumn extends React.Component<IGraphColumnProps, {}> {
@@ -15,10 +17,13 @@ export class GraphColumn extends React.Component<IGraphColumnProps, {}> {
         return(
             <Grid item className="blm-graph-column" style={{width: `${columnWidth}%`}}>
                 {
-                    this.props.column.map((item: boolean, i: number) => {
+                    this.props.column.map((item: IBlmEntity, i: number) => {
                         return (
                             <Grid item key={i}>
-                                <GraphElement item={item}/>
+                                <GraphElement
+                                    item={item}
+                                    viewDetails={(el: IBlmEntity | undefined) => this.props.viewDetails(el)}
+                                />
                             </Grid>
                         );
                     })
