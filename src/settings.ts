@@ -1,3 +1,4 @@
-export const machines = 30;
-export const lineLength = 15;
+export const numberOfMachines = 30;
+export const minLineLength = 10;
+export const maxLineLength = 20;
 export const lineHeight = 6;
