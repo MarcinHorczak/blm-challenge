@@ -7,9 +7,6 @@ export interface IBlmConnections {
 export interface IBlmEntity {
     id: number;
     isExist: boolean;
-    isMainLine: boolean;
-    isConnected: boolean;
     isChecked: boolean;
-    previous: IBlmConnections;
     next: IBlmConnections;
 }

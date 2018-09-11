@@ -15,6 +15,7 @@ export class Panel extends React.Component<{}, IPanelState> {
             viewDetails: undefined,
         };
     }
+
     public render() {
         const { viewDetails } = this.state;
         return (
@@ -23,6 +24,7 @@ export class Panel extends React.Component<{}, IPanelState> {
                     <Typography variant="title">BLM Generator</Typography>
                 </Grid>
                 <BlmGenerator viewDetails={(item: IBlmEntity | undefined) => this.setState({ viewDetails: item })}/>
+                <Grid item container>
                 {viewDetails !== undefined
                     ? <Paper>
                         <table>
@@ -30,12 +32,6 @@ export class Panel extends React.Component<{}, IPanelState> {
                                 <tr><td>ID:</td><td>{viewDetails.id}</td></tr>
                                 <tr><td>isExist:</td><td>{viewDetails.isExist.toString()}</td></tr>
                                 <tr><td>isChecked:</td><td>{viewDetails.isChecked.toString()}</td></tr>
-                                <tr><td>isConnected:</td><td>{viewDetails.isConnected.toString()}</td></tr>
-                                <tr><td>isMainLine:</td><td>{viewDetails.isMainLine.toString()}</td></tr>
-                                <tr><td>PREVIOUS:</td></tr>
-                                <tr><td>top:</td><td>{viewDetails.previous.top.toString()}</td></tr>
-                                <tr><td>middle:</td><td>{viewDetails.previous.middle.toString()}</td></tr>
-                                <tr><td>bottom:</td><td>{viewDetails.previous.bottom.toString()}</td></tr>
                                 <tr><td>NEXT:</td></tr>
                                 <tr><td>top:</td><td>{viewDetails.next.top.toString()}</td></tr>
                                 <tr><td>middle:</td><td>{viewDetails.next.middle.toString()}</td></tr>
@@ -45,6 +41,7 @@ export class Panel extends React.Component<{}, IPanelState> {
                     </Paper>
                     : null
                 }
+                </Grid>
             </Grid>
         );
     }

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Button, Grid } from '@material-ui/core';
 import * as _ from 'lodash';
 import { GraphColumn } from '..';
-import { lineHeight, maxLineLength, minLineLength, numberOfMachines } from '../../../settings';
+import { lineHeight, maxLineLength, minBlmElementSize, minLineLength, numberOfMachines } from '../../../settings';
 import { IBlmEntity } from '../model';
 
 interface IBlmGeneratorProps {
@@ -13,6 +13,8 @@ interface IBlmGeneratorProps {
 interface IBlmGeneratorState {
     blmModel: IBlmEntity[][];
     blmLineLength: number;
+    connections: number[][];
+    screenWidth: number;
 }
 
 export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGeneratorState> {
@@ -21,63 +23,70 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         this.state = {
             blmModel: [],
             blmLineLength: 0,
+            connections: [],
+            screenWidth: 0,
         };
+        this.updateWindowWidth = this.updateWindowWidth.bind(this);
     }
 
     public componentDidMount() {
         this.generateBlmModel();
+        this.updateWindowWidth();
+        window.addEventListener('resize', this.updateWindowWidth);
+    }
+
+    public componentWillUnmount() {
+        window.removeEventListener('resize', this.updateWindowWidth);
+    }
+
+    public updateWindowWidth() {
+        this.setState({ screenWidth: window.innerWidth });
     }
 
     public render() {
-        const { blmModel, blmLineLength } = this.state;
+        const { blmModel, blmLineLength, screenWidth } = this.state;
         return(
-            <Grid container direction="row" className="blm-graph">
+            <Grid container direction="row">
                 <Grid container>
                     <Button onClick={() => this.generateBlmModel()} color="primary" variant="outlined">
                         Generate New Graph
                     </Button>
                 </Grid>
-                {
-                    blmModel.map((item: IBlmEntity[], i: number) => {
-                        return (
-                            <GraphColumn
-                                column={item}
-                                key={i}
-                                blmLineLength={blmLineLength}
-                                viewDetails={(el: IBlmEntity | undefined) => {this.props.viewDetails(el); }}/>
-                        );
-                    })
-                }
+                <Grid container className="blm-graph" style={{minWidth: blmLineLength * minBlmElementSize}}>
+                    {
+                        blmModel.map((item: IBlmEntity[], i: number) => {
+                            return (
+                                <GraphColumn
+                                    column={item}
+                                    key={i}
+                                    blmLineLength={blmLineLength}
+                                    viewDetails={(el: IBlmEntity | undefined) => {this.props.viewDetails(el); }}
+                                    screenWidth={screenWidth}
+                                />
+                            );
+                        })
+                    }
+                </Grid>
             </Grid>
         );
     }
 
     private generateBlmModel() {
-        let shouldReload: boolean;
-        let blm: IBlmEntity[][] = _.chunk(this.createEmptyArray(maxLineLength, numberOfMachines), lineHeight);
-        let blmGeneratedLength = this.deleteEmptyColumns(blm).length;
-        if (blmGeneratedLength < minLineLength) { blmGeneratedLength = minLineLength; }
+        let blmGeneratedLength: number;
+        let blm: IBlmEntity[][];
+        let connections: number[][] = [];
+
+        blmGeneratedLength = this.setOptimalLineLenght();
         blm = _.chunk(this.createEmptyArray(blmGeneratedLength, 0), lineHeight);
         blm = this.createMainLine(blm);
-        let blmStateModel: IBlmEntity[][] = blm;
-
-        do {
-            // blm = this.deleteEmptyColumns(blm);
-            // blm = this.setSingleElementsInLine(blm);
-            // blm = this.stickLonelyElementsToSchema(blm);
-            // blm = this.connectFirstColumn(blm);
-            // blm = this.createMainLine(blm);
-            // blm = this.connectElementsToMainLine(blm);
-
-            _.isEqual(blm, blmStateModel)
-                ? shouldReload = false
-                : shouldReload = true;
-            blmStateModel = Array.from(blm);
-        } while (shouldReload);
+        this.addRestOfElements(blm);
+        blm = this.setElementsId(blm);
+        connections = this.setConnection(blm);
 
         this.setState({
             blmModel: blm,
             blmLineLength: blm.length,
+            connections,
         });
     }
 
@@ -89,14 +98,7 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
                 id: 0,
                 isChecked: false,
                 isExist: i < machines ? true : false,
-                isMainLine: false,
-                isConnected: false,
                 next: {
-                    bottom: false,
-                    middle: false,
-                    top: false,
-                },
-                previous: {
                     bottom: false,
                     middle: false,
                     top: false,
@@ -118,18 +120,28 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         return blm;
     }
 
+    private setOptimalLineLenght(): number {
+        const blm: IBlmEntity[][] = _.chunk(this.createEmptyArray(maxLineLength, numberOfMachines), lineHeight);
+        let blmGeneratedLength: number = this.deleteEmptyColumns(blm).length;
+        if (blmGeneratedLength < minLineLength) { blmGeneratedLength = minLineLength; }
+        return blmGeneratedLength;
+    }
+
     private createMainLine(blm: IBlmEntity[][]): IBlmEntity[][] {
         for (let i = 0; i < blm.length - 1; i++) {
             for (let j = 0; j < lineHeight; j++) {
                 let randPos: number;
                 if (i === 0 && j === 0) {
                     randPos = Math.floor(Math.random() * lineHeight);
-                    blm[0][randPos].isExist = true;
+                    this.createNewElement(blm, 0, randPos);
                     const keepPosition = randPos;
                     randPos = Math.floor(Math.random() * 3 - 1);
                     if (keepPosition + randPos < 0) {randPos = 0; }
                     if (keepPosition + randPos > lineHeight - 1) {randPos = 0; }
                     blm[1][keepPosition + randPos].isExist = true;
+                    if (randPos === -1) {blm[0][keepPosition].next.top = true; }
+                    if (randPos === 0) {blm[0][keepPosition].next.middle = true; }
+                    if (randPos === 1) {blm[0][keepPosition].next.bottom = true; }
                     j = -1;
                     i++;
                 } else {
@@ -137,7 +149,12 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
                         randPos = Math.floor(Math.random() * 3 - 1);
                         if (j + randPos < 0) {randPos = 0; }
                         if (j + randPos > lineHeight - 1) {randPos = 0; }
-                        blm[i + 1][j + randPos].isExist = true;
+                        this.createNewElement(blm, i + 1, j + randPos);
+                        if (i < blm.length - 1) {
+                            if (randPos === -1) {blm[i][j].next.top = true; }
+                            if (randPos === 0) {blm[i][j].next.middle = true; }
+                            if (randPos === 1) {blm[i][j].next.bottom = true; }
+                        }
                     }
                 }
             }
@@ -145,242 +162,91 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         return blm;
     }
 
-    // private setSingleElementsInLine(blm: IBlmEntity[][]): IBlmEntity[][] {
-    //     for (let i = 1; i < blm.length; i++) {
-    //         let machinesInColumn: number = 0;
-    //         let positionInPreviousObject: number = 0;
-    //         for (let j = 0; j < lineHeight; j++) {
-    //             if (blm[i][j].isExist === true) {
-    //                 machinesInColumn += 1;
-    //             }
-    //         }
-    //         if (machinesInColumn === 1) {
-    //             machinesInColumn = 0;
-    //             for (let k = 0; k < lineHeight; k++) {
-    //                 if (blm[i - 1][k].isExist === true) {
-    //                     machinesInColumn += 1;
-    //                     positionInPreviousObject = k;
-    //                 }
-    //             }
-    //             if (machinesInColumn === 1) {
-    //                 for (let l = 0; l < lineHeight; l++) {
-    //                     l === positionInPreviousObject
-    //                         ? blm[i][l].isExist = true
-    //                         : blm[i][l].isExist = false;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return blm;
-    // }
+    private createNewConnectedElement(blm: IBlmEntity[][]): IBlmEntity[][] {
+        let i;
+        let j;
+        let k;
+        let l;
+        let m;
+        let n;
+        // let randomDirection;
+        // let randomPosition;
+        do {
+            i = Math.floor(Math.random() * blm.length);
+            j = Math.floor(Math.random() * lineHeight);
+            if (i - 1 < 0) {k = 1; } else {k = i; }
+            if (i + 1 > blm.length - 1) {l = blm.length - 2; } else {l = i; }
+            if (j - 1 < 0) {m = 1; } else {m = j; }
+            if (j + 1 > lineHeight - 1) {n = lineHeight - 2; } else {n = j; }
+        } while (
+            blm[i][j].isExist === false
+            && !(
+                blm[k - 1][m - 1].isExist === true
+                || blm[k - 1][j].isExist === true
+                || blm[k - 1][n + 1].isExist === true
+                || blm[l + 1][m - 1].isExist === true
+                || blm[l + 1][j].isExist === true
+                || blm[l + 1][n + 1].isExist === true
+            )
+        );
+        this.createNewElement(blm, i, j);
+        // do {
+        //     randomDirection = Math.floor(Math.random() * 2);
+        //     randomPosition = Math.floor(Math.random() * 3 - 1);
+        //     if (randomDirection) {
+        //         if (blm[k - 1])
+        //     }
+        // } while (false);
+        return blm;
+    }
 
-    // private stickLonelyElementsToSchema(blm: IBlmEntity[][]): IBlmEntity[][] {
-    //     let k: number;
-    //     let l: number;
-    //     for (let i = 1; i < blm.length - 1; i++) {
-    //         for (let j = 0; j < lineHeight; j++) {
-    //             if (j - 1 < 0) {k = 2; } else { k = j; }
-    //             if (j + 1 > lineHeight - 1) {l = lineHeight - 3; } else { l = j; }
-    //             if (
-    //                 blm[i][j].isExist === true
-    //                 && blm[i - 1][k - 1].isExist === false
-    //                 && blm[i - 1][j].isExist === false
-    //                 && blm[i - 1][l + 1].isExist === false
-    //                 && blm[i + 1][k - 1].isExist === false
-    //                 && blm[i + 1][j].isExist === false
-    //                 && blm[i + 1][l + 1].isExist === false
-    //             ) {
-    //                 blm[i][j] = this.clearBlmElement(blm[i][j]);
-    //                 blm = this.createNewElement(blm);
-    //             }
-    //         }
-    //     }
-    //     return blm;
-    // }
+    private addRestOfElements(blm: IBlmEntity[][]): void {
+        let numberOfElements: number = 0;
+        do {
+            if (numberOfElements < numberOfMachines) { blm = this.createNewConnectedElement(blm); }
+            numberOfElements = this.countElements(blm);
+        } while (numberOfElements < numberOfMachines);
+        return;
+    }
 
-    // private connectFirstColumn(blm: IBlmEntity[][]): IBlmEntity[][] {
-    //     let j: number;
-    //     let k: number;
-    //     for (let i = 0; i < lineHeight; i++) {
-    //         if (i - 1 < 0) {j = 1; } else { j = i; }
-    //         if (i + 1 > lineHeight - 1) {k = lineHeight - 2; } else { k = i; }
-    //         if (
-    //             blm[0][i].isExist === true
-    //             && blm[1][j - 1].isExist === false
-    //             && blm[1][i].isExist === false
-    //             && blm[1][k + 1].isExist === false
-    //         ) {
-    //             blm[0][i] = this.clearBlmElement(blm[0][i]);
-    //             blm = this.createNewElement(blm);
-    //             blm = this.deleteEmptyColumns(blm);
-    //         }
-    //     }
-    //     return blm;
-    // }
+    private setElementsId(blm: IBlmEntity[][]): IBlmEntity[][] {
+        let iterator: number = 1;
+        const blmLineLength = blm.length;
+        for (let i = 0; i < blmLineLength; i++) {
+            for (let j = 0; j < lineHeight; j++) {
+                if (blm[i][j].isExist) {
+                    blm[i][j].id = iterator;
+                    iterator++;
+                }
+            }
+        }
+        return blm;
+    }
 
-    // private createMainLine(blm: IBlmEntity[][]): IBlmEntity[][] {
-    //     let isMainLineHeadExist: boolean = false;
-    //     let k: number;
-    //     let l: number;
-    //     for (let i = 0; i < lineHeight; i++) {
-    //         if (blm[0][i].isMainLine === true) {isMainLineHeadExist = true; }
-    //     }
-    //     if (isMainLineHeadExist) {
-    //         for (let i = 0; i < blm.length - 1; i++) {
-    //             for (let j = 0; j < lineHeight; j++) {
-    //                 if (j - 1 < 0) {k = 1; } else { k = j; }
-    //                 if (j + 1 > lineHeight - 1) {l = lineHeight - 2; } else { l = j; }
-    //                 if (blm[i][j].isMainLine) {
-    //                     if (
-    //                         blm[i + 1][k - 1].isMainLine
-    //                         || blm[i + 1][j].isMainLine
-    //                         || blm[i + 1][l + 1].isMainLine
-    //                     ) { break; } else {
-    //                         if (
-    //                             blm[i + 1][k - 1].isExist
-    //                             || blm[i + 1][j].isExist
-    //                             || blm[i + 1][l + 1].isExist
-    //                         ) {
-    //                             let isMainLineExtended: boolean = false;
-    //                             let m: number;
-    //                             do {
-    //                                 const randPos: number = Math.floor(Math.random() * 3 - 1);
-    //                                 m = j;
-    //                                 if (j + randPos < 0) {m = 1; }
-    //                                 if (j + randPos > lineHeight - 1) {m = lineHeight - 2; }
-    //                                 if (blm[i + 1][m + randPos].isExist) {
-    //                                     blm[i + 1][m + randPos].isMainLine = true;
-    //                                     blm[i + 1][m + randPos].isConnected = true;
-    //                                     isMainLineExtended = true;
-    //                                 }
-    //                             } while (!isMainLineExtended);
-    //                         } else {
-    //                             // delete one and put one random
-    //                         }
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     } else {
-    //         let isHeadSetted: boolean = false;
-    //         do {
-    //             const randPos: number = Math.floor(Math.random() * (lineHeight));
-    //             if (blm[0][randPos].isExist) {
-    //                 blm[0][randPos].isMainLine = true;
-    //                 blm[0][randPos].isConnected = true;
-    //                 isHeadSetted = true;
-    //             }
-    //         } while (!isHeadSetted);
-    //     }
-    //     return blm;
-    // }
+    private setConnection(blm: IBlmEntity[][]): number[][] {
+        const connections: number[][] = [];
+        let i;
+        let j;
+        do {
+            i = Math.floor(Math.random() * blm.length);
+            j = Math.floor(Math.random() * lineHeight);
+        } while (blm[i][j].isExist);
+        return connections;
+    }
 
-    // private connectElementsToMainLine(blm: IBlmEntity[][]): IBlmEntity[][] {
-    //     for (let i = 1; i < blm.length - 1; i++) {
-    //         let k;
-    //         let l;
-    //         for (let j = 0; j < lineHeight; j++) {
-    //             if (j - 1 < 0) {k = 2; } else { k = j; }
-    //             if (j + 1 > lineHeight - 1) {l = lineHeight - 3; } else { l = j; }
-    //             if (blm[i][j].isExist && !blm[i][j].isConnected) {
-    //                 if (
-    //                     blm[i - 1][k - 1].isConnected
-    //                     || blm[i - 1][j].isConnected
-    //                     || blm[i - 1][l + 1].isConnected
-    //                     || blm[i + 1][k - 1].isConnected
-    //                     || blm[i + 1][j].isConnected
-    //                     || blm[i + 1][l + 1].isConnected
-    //                 ) {
-    //                     let randomConnection: number;
-    //                     let isElementConnected: boolean = false;
-    //                     // do {
-    //                     randomConnection = Math.floor(Math.random() * 6);
-    //                     switch (true) {
-    //                             case (randomConnection === 0):
-    //                                 if (blm[i - 1][k - 1].isConnected) {
-    //                                     blm[i][j].previous.top = true;
-    //                                     blm[i][j].isConnected = true;
-    //                                     blm[i - 1][k - 1].next.bottom = true;
-    //                                     isElementConnected = true;
-    //                                 }
-    //                                 break;
-    //                             case (randomConnection === 1):
-    //                                 if (blm[i - 1][j].isConnected) {
-    //                                     blm[i][j].previous.middle = true;
-    //                                     blm[i][j].isConnected = true;
-    //                                     blm[i - 1][j].next.middle = true;
-    //                                     isElementConnected = true;
-    //                                 }
-    //                                 break;
-    //                             case (randomConnection === 2):
-    //                                 if (blm[i - 1][l + 1].isConnected) {
-    //                                     blm[i][j].previous.bottom = true;
-    //                                     blm[i][j].isConnected = true;
-    //                                     blm[i - 1][l + 1].next.top = true;
-    //                                     isElementConnected = true;
-    //                                 }
-    //                                 break;
-    //                             case (randomConnection === 3):
-    //                                 if (blm[i - 1][k - 1].isConnected) {
-    //                                     blm[i][j].next.top = true;
-    //                                     blm[i][j].isConnected = true;
-    //                                     blm[i + 1][k - 1].previous.bottom = true;
-    //                                     isElementConnected = true;
-    //                                 }
-    //                                 break;
-    //                             case (randomConnection === 4):
-    //                                 if (blm[i - 1][j].isConnected) {
-    //                                     blm[i][j].next.middle = true;
-    //                                     blm[i][j].isConnected = true;
-    //                                     blm[i + 1][j].previous.middle = true;
-    //                                     isElementConnected = true;
-    //                                 }
-    //                                 break;
-    //                             case (randomConnection === 5):
-    //                                 if (blm[i - 1][l + 1].isConnected) {
-    //                                     blm[i][j].next.top = true;
-    //                                     blm[i][j].isConnected = true;
-    //                                     blm[i + 1][l + 1].previous.top = true;
-    //                                     isElementConnected = true;
-    //                                 }
-    //                         }
-    //                     // } while (!isElementConnected);
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return blm;
-    // }
+    private countElements(blm: IBlmEntity[][]): number {
+        let counter: number = 0;
+        const blmLineLength = blm.length;
+        for (let i = 0; i < blmLineLength; i++) {
+            for (let j = 0; j < lineHeight; j++) {
+                if (blm[i][j].isExist) {counter++; }
+            }
+        }
+        return counter;
+    }
 
-    // private createNewElement(blm: IBlmEntity[][]): IBlmEntity[][] {
-    //     let i;
-    //     let j;
-    //     do {
-    //         i = Math.floor(Math.random() * blm.length);
-    //         j = Math.floor(Math.random() * lineHeight);
-    //     } while (blm[i][j].isExist === false);
-    //     blm[i][j].isExist = true;
-    //     return blm;
-    // }
-
-    // private clearBlmElement(blm: IBlmEntity): IBlmEntity {
-    //     blm = {
-    //         id: 0,
-    //         isChecked: false,
-    //         isConnected: false,
-    //         isExist: false,
-    //         isMainLine: false,
-    //         next: {
-    //             bottom: false,
-    //             middle: false,
-    //             top: false,
-    //         },
-    //         previous: {
-    //             bottom: false,
-    //             middle: false,
-    //             top: false,
-    //         },
-    //     };
-    //     return blm;
-    // }
+    private createNewElement(blm: IBlmEntity[][], i: number, j: number): IBlmEntity[][] {
+        blm[i][j].isExist = true;
+        return blm;
+    }
 }
