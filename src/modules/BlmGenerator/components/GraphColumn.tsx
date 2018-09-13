@@ -9,7 +9,6 @@ import { GraphConnection } from './GraphConnection';
 interface IGraphColumnProps {
     column: IBlmEntity[];
     blmLineLength: number;
-    viewDetails: (item: IBlmEntity | undefined) => void;
     screenWidth: number;
 }
 
@@ -31,7 +30,6 @@ export class GraphColumn extends React.Component<IGraphColumnProps, {}> {
                                 <Grid item key={i}>
                                     <GraphElement
                                         item={item}
-                                        viewDetails={(el: IBlmEntity | undefined) => this.props.viewDetails(el)}
                                         elementSize={elementSize}
                                     />
                                 </Grid>

@@ -1,12 +1,11 @@
 {
-  "name": "transportation",
+  "name": "blm",
   "private": true,
-  "license": "Flightscope (Proprietary)",
+  "license": "Marcin Horczak",
   "author": {
-    "email": "#TODO-TransportationDevs@flightscope.com.pl",
-    "name": "Transportation Devs"
+    "email": "marcin.horczak737@gmail.com",
+    "name": "Marcin Horczak"
   },
-  "version": "0.0.0-alpha",
   "devDependencies": {
     "@types/lodash": "^4.14.109",
     "@types/material-ui": "^0.20.8",
@@ -14,15 +13,12 @@
     "@types/react-dom": "^16.0.5",
     "@types/react-redux": "^6.0.0",
     "@types/react-router-dom": "^4.2.6",
-    "@types/uuid": "^3.4.3",
-    "@types/vis": "^4.21.7",
     "clean-webpack-plugin": "^0.1.19",
     "css-loader": "^0.28.11",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.4.0",
     "node-sass": "^4.9.0",
     "react-svg-loader": "^2.1.0",
-    "react-vis-network": "^1.0.0",
     "sass-loader": "^7.0.1",
     "style-loader": "^0.21.0",
     "ts-loader": "^4.3.0",
@@ -46,16 +42,13 @@
     "react-form": "^3.5.5",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.2.2",
-    "react-vis": "^1.11.0",
     "redux": "^4.0.0",
     "redux-saga": "^0.16.0",
-    "reselect": "^3.0.1",
-    "uuid": "^3.2.1"
+    "reselect": "^3.0.1"
   },
   "scripts": {
     "build": "./node_modules/.bin/webpack",
     "dev": "./node_modules/.bin/webpack-dev-server --env.bundleOutputDir='./build'",
-    "lint": "./node_modules/.bin/tslint 'src/**/*.ts{,x}'",
-    "db": "./node_modules/.bin/json-server --routes json-server-routes.json db.json "
+    "lint": "./node_modules/.bin/tslint 'src/**/*.ts{,x}'"
   }
 }

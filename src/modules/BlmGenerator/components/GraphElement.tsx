@@ -5,7 +5,6 @@ import { IBlmEntity } from '../model';
 
 interface IGraphElementProps {
     item: IBlmEntity;
-    viewDetails: (item: IBlmEntity | undefined) => void;
     elementSize: number;
 }
 
@@ -21,11 +20,9 @@ export class GraphElement extends React.Component<IGraphElementProps, {}> {
                         ? <div
                             style={{width: size, height: size}}
                             className={`blm-graph-element ${isExist}`}
-                            onMouseOver={() => this.props.viewDetails(this.props.item)}
-                            onMouseLeave={() => this.props.viewDetails(undefined)}
                         >
                             <Typography>
-                                {item.id}
+                                {item.id}({item.time})
                             </Typography>
                         </div>
                         : <div style={{width: size, height: size}}/>

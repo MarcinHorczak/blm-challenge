@@ -3,17 +3,24 @@ import * as React from 'react';
 import { Button, Grid } from '@material-ui/core';
 import * as _ from 'lodash';
 import { GraphColumn } from '..';
-import { lineHeight, maxLineLength, minBlmElementSize, minLineLength, numberOfMachines } from '../../../settings';
+import {
+    lineHeight,
+    maxLineLength,
+    maxTimeRange,
+    minBlmElementSize,
+    minLineLength,
+    minTimeRange,
+    numberOfMachines,
+} from '../../../settings';
 import { IBlmEntity } from '../model';
 
 interface IBlmGeneratorProps {
-    viewDetails: (item: IBlmEntity | undefined) => void;
+    blmModel: (blmModel: IBlmEntity[][]) => void;
 }
 
 interface IBlmGeneratorState {
     blmModel: IBlmEntity[][];
     blmLineLength: number;
-    connections: number[][];
     screenWidth: number;
 }
 
@@ -23,7 +30,6 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         this.state = {
             blmModel: [],
             blmLineLength: 0,
-            connections: [],
             screenWidth: 0,
         };
         this.updateWindowWidth = this.updateWindowWidth.bind(this);
@@ -52,6 +58,7 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
                         Generate New Graph
                     </Button>
                 </Grid>
+                <hr style={{width: '200%'}}/>
                 <Grid container className="blm-graph" style={{minWidth: blmLineLength * minBlmElementSize}}>
                     {
                         blmModel.map((item: IBlmEntity[], i: number) => {
@@ -60,7 +67,6 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
                                     column={item}
                                     key={i}
                                     blmLineLength={blmLineLength}
-                                    viewDetails={(el: IBlmEntity | undefined) => {this.props.viewDetails(el); }}
                                     screenWidth={screenWidth}
                                 />
                             );
@@ -74,19 +80,17 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
     private generateBlmModel() {
         let blmGeneratedLength: number;
         let blm: IBlmEntity[][];
-        let connections: number[][] = [];
 
         blmGeneratedLength = this.setOptimalLineLenght();
         blm = _.chunk(this.createEmptyArray(blmGeneratedLength, 0), lineHeight);
         blm = this.createMainLine(blm);
         this.addRestOfElements(blm);
         blm = this.setElementsId(blm);
-        connections = this.setConnection(blm);
 
+        this.props.blmModel(blm);
         this.setState({
             blmModel: blm,
             blmLineLength: blm.length,
-            connections,
         });
     }
 
@@ -96,7 +100,9 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         for (let i = 0; i < arrayElements; i++) {
             blm[i] = {
                 id: 0,
+                time: 0,
                 isChecked: false,
+                isConnected: false,
                 isExist: i < machines ? true : false,
                 next: {
                     bottom: false,
@@ -134,11 +140,13 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
                 if (i === 0 && j === 0) {
                     randPos = Math.floor(Math.random() * lineHeight);
                     this.createNewElement(blm, 0, randPos);
+                    blm[0][randPos].isConnected = true;
                     const keepPosition = randPos;
                     randPos = Math.floor(Math.random() * 3 - 1);
                     if (keepPosition + randPos < 0) {randPos = 0; }
                     if (keepPosition + randPos > lineHeight - 1) {randPos = 0; }
                     blm[1][keepPosition + randPos].isExist = true;
+                    blm[1][keepPosition + randPos].isConnected = true;
                     if (randPos === -1) {blm[0][keepPosition].next.top = true; }
                     if (randPos === 0) {blm[0][keepPosition].next.middle = true; }
                     if (randPos === 1) {blm[0][keepPosition].next.bottom = true; }
@@ -150,6 +158,7 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
                         if (j + randPos < 0) {randPos = 0; }
                         if (j + randPos > lineHeight - 1) {randPos = 0; }
                         this.createNewElement(blm, i + 1, j + randPos);
+                        blm[i + 1][j + randPos].isConnected = true;
                         if (i < blm.length - 1) {
                             if (randPos === -1) {blm[i][j].next.top = true; }
                             if (randPos === 0) {blm[i][j].next.middle = true; }
@@ -169,13 +178,13 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         let l;
         let m;
         let n;
-        // let randomDirection;
-        // let randomPosition;
+        let randomPosition;
+        let isElementConnected;
         do {
             i = Math.floor(Math.random() * blm.length);
             j = Math.floor(Math.random() * lineHeight);
-            if (i - 1 < 0) {k = 1; } else {k = i; }
-            if (i + 1 > blm.length - 1) {l = blm.length - 2; } else {l = i; }
+            if (i - 1 < 0) {k = 2; } else {k = i; }
+            if (i + 1 > blm.length - 1) {l = blm.length - 3; } else {l = i; }
             if (j - 1 < 0) {m = 1; } else {m = j; }
             if (j + 1 > lineHeight - 1) {n = lineHeight - 2; } else {n = j; }
         } while (
@@ -190,13 +199,49 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
             )
         );
         this.createNewElement(blm, i, j);
-        // do {
-        //     randomDirection = Math.floor(Math.random() * 2);
-        //     randomPosition = Math.floor(Math.random() * 3 - 1);
-        //     if (randomDirection) {
-        //         if (blm[k - 1])
-        //     }
-        // } while (false);
+        do {
+            randomPosition = Math.floor(Math.random() * 6);
+            isElementConnected = false;
+            switch (randomPosition) {
+                case(0):
+                    if (blm[k - 1][m - 1].isConnected && i !== 0) {
+                        blm = this.setConnections(blm, k - 1, m - 1, i, j);
+                        isElementConnected = true;
+                    }
+                    break;
+                case(1):
+                    if (blm[k - 1][j].isConnected && i !== 0) {
+                        blm = this.setConnections(blm, k - 1, j, i, j);
+                        isElementConnected = true;
+                    }
+                    break;
+                case(2):
+                    if (blm[k - 1][n + 1].isConnected && i !== 0) {
+                        blm = this.setConnections(blm, k - 1, n + 1, i, j);
+                        isElementConnected = true;
+                    }
+                    break;
+                case(3):
+                    if (blm[l + 1][m - 1].isConnected && i !== blm.length - 1) {
+                        blm = this.setConnections(blm, i, j, l + 1, m - 1);
+                        isElementConnected = true;
+                    }
+                    break;
+                case(4):
+                    if (blm[l + 1][j].isConnected && i !== blm.length - 1) {
+                        blm = this.setConnections(blm, i, j, l + 1, j);
+                        isElementConnected = true;
+                    }
+                    break;
+                case(5):
+                    if (blm[l + 1][n + 1].isConnected && i !== blm.length - 1) {
+                        blm = this.setConnections(blm, i, j, l + 1, n + 1);
+                        isElementConnected = true;
+                    }
+                    break;
+            }
+        } while (!isElementConnected);
+        // TODO non-crossing connections
         return blm;
     }
 
@@ -210,11 +255,14 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
     }
 
     private setElementsId(blm: IBlmEntity[][]): IBlmEntity[][] {
-        let iterator: number = 1;
+        let iterator = 1;
+        let time;
         const blmLineLength = blm.length;
         for (let i = 0; i < blmLineLength; i++) {
             for (let j = 0; j < lineHeight; j++) {
                 if (blm[i][j].isExist) {
+                    time = Math.floor(Math.random() * (maxTimeRange - minTimeRange) + minTimeRange);
+                    blm[i][j].time = time;
                     blm[i][j].id = iterator;
                     iterator++;
                 }
@@ -223,15 +271,27 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         return blm;
     }
 
-    private setConnection(blm: IBlmEntity[][]): number[][] {
-        const connections: number[][] = [];
-        let i;
-        let j;
-        do {
-            i = Math.floor(Math.random() * blm.length);
-            j = Math.floor(Math.random() * lineHeight);
-        } while (blm[i][j].isExist);
-        return connections;
+    private setConnections(
+        blm: IBlmEntity[][],
+        fromI: number,
+        fromJ: number,
+        toI: number,
+        toJ: number,
+    ): IBlmEntity[][] {
+        switch (toJ - fromJ) {
+            case(-1):
+                blm[fromI][fromJ].next.top = true;
+                break;
+            case(0):
+                blm[fromI][fromJ].next.middle = true;
+                break;
+            case(1):
+                blm[fromI][fromJ].next.bottom = true;
+                break;
+        }
+        blm[fromI][fromJ].isConnected = true;
+        blm[toI][toJ].isConnected = true;
+        return blm;
     }
 
     private countElements(blm: IBlmEntity[][]): number {

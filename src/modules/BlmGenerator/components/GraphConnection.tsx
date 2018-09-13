@@ -12,7 +12,12 @@ export class GraphConnection extends React.Component<IGraphConnection, {}> {
     public render() {
         const { item, elementSize } = this.props;
         return(
-            <Grid style={{width: `${elementSize / 2}px`, height: `${elementSize / 2}px`}}>
+            <Grid
+                style={{
+                    width: (item.next.top || item.next.middle || item.next.bottom) ? `${elementSize / 2}px` : 0,
+                    height: `${elementSize / 2}px`,
+                }}
+            >
                 {
                     item.next.bottom
                     ? <div
@@ -20,8 +25,8 @@ export class GraphConnection extends React.Component<IGraphConnection, {}> {
                         style={{
                             transform:
                                 `matrix(${Math.SQRT2},-${Math.SQRT2},${Math.SQRT2},${Math.SQRT2},0,0) scale(0.5)`,
-                                marginLeft: 5,
-                                marginTop: 8,
+                            marginLeft: 5,
+                            marginTop: 8,
                         }}
                     >
                         <div className="oval"/>
