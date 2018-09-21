@@ -85,7 +85,10 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         blm = _.chunk(this.createEmptyArray(blmGeneratedLength, 0), lineHeight);
         blm = this.createMainLine(blm);
         this.addRestOfElements(blm);
-        blm = this.setElementsId(blm);
+        blm = this.setElementsIdAndTime(blm);
+        blm = this.countImmediateFollowers(blm);
+        // blm = this.countFollowers(blm);
+        blm = this.measureWeight(blm);
 
         this.props.blmModel(blm);
         this.setState({
@@ -101,9 +104,17 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
             blm[i] = {
                 id: 0,
                 time: 0,
+                nof: -1,
+                noif: 0,
+                rpw: -1,
                 isChecked: false,
                 isConnected: false,
                 isExist: i < machines ? true : false,
+                previous: {
+                    bottom: false,
+                    middle: false,
+                    top: false,
+                },
                 next: {
                     bottom: false,
                     middle: false,
@@ -241,7 +252,6 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
                     break;
             }
         } while (!isElementConnected);
-        // TODO non-crossing connections
         return blm;
     }
 
@@ -254,7 +264,7 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         return;
     }
 
-    private setElementsId(blm: IBlmEntity[][]): IBlmEntity[][] {
+    private setElementsIdAndTime(blm: IBlmEntity[][]): IBlmEntity[][] {
         let iterator = 1;
         let time;
         const blmLineLength = blm.length;
@@ -291,6 +301,67 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         }
         blm[fromI][fromJ].isConnected = true;
         blm[toI][toJ].isConnected = true;
+        return blm;
+    }
+
+    private countImmediateFollowers(blm: IBlmEntity[][]): IBlmEntity[][] {
+        const blmLineLength = blm.length;
+        let isLast: boolean;
+        for (let i = 0; i < blmLineLength; i++) {
+            for (let j = 0; j < lineHeight; j++) {
+                isLast = true;
+                if (blm[i][j].next.top) {blm[i][j].noif++; isLast = false; }
+                if (blm[i][j].next.middle) {blm[i][j].noif++; isLast = false; }
+                if (blm[i][j].next.bottom) {blm[i][j].noif++; isLast = false; }
+                if (isLast) {blm[i][j].nof = 0; blm[i][j].rpw = blm[i][j].time; }
+            }
+        }
+        return blm;
+    }
+
+    // private countFollowers(blm: IBlmEntity[][]): IBlmEntity[][] {
+    //     const blmLineLength = blm.length;
+    //     let shouldCount: boolean;
+    //     let nof: number;
+    //     do {
+    //         for (let i = 0; i < blmLineLength; i++) {
+    //             for (let j = 0; j < lineHeight; j++) {
+    //                 if (j !== 0) {
+    //                     if (blm[i][j].next.top && blm[i + 1][j - 1].nof !== -1) {
+    //                     }
+    //                 }
+    //                 if (blm[i][j].next.middle && blm[i + 1][j].nof !== -1) {
+    //                 }
+    //                 if (j !== lineHeight) {
+    //                     if (blm[i][j].next.bottom && blm[i + 1][j + 1].nof !== -1) {
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     } while (false);
+    //     return blm;
+    // }
+
+    private measureWeight(blm: IBlmEntity[][]): IBlmEntity[][] {
+        const blmLineLength = blm.length;
+        let maxTime: number;
+        for (let i = blmLineLength - 1; i >= 0; i--) {
+            for (let j = 0; j < lineHeight; j++) {
+                maxTime = 0;
+                if (blm[i][j].next.top) {maxTime = blm[i + 1][j - 1].rpw; }
+                if (blm[i][j].next.middle) {
+                    if (maxTime < blm[i + 1][j].rpw) {
+                        maxTime = blm[i + 1][j].rpw;
+                    }
+                }
+                if (blm[i][j].next.bottom) {
+                    if (maxTime < blm[i + 1][j + 1].rpw) {
+                        maxTime = blm[i + 1][j + 1].rpw;
+                    }
+                }
+                blm[i][j].rpw = maxTime + blm[i][j].time;
+            }
+        }
         return blm;
     }
 

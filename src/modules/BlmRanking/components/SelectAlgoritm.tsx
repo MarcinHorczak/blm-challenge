@@ -32,6 +32,7 @@ export class SelectAlgoritm extends React.Component<ISelectAlgoritmProps, ISelec
                     onChange={(event: any) => setAlgoritm(event.target.value)}
                     className="blm-ranking-algoritm-select"
                 >
+                    <MenuItem value=""><em>None</em></MenuItem>
                     <MenuItem value="WET">WET</MenuItem>
                     <MenuItem value="RPW">RPW</MenuItem>
                     <MenuItem value="NOF">NOF</MenuItem>

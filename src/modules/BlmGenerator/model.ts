@@ -7,8 +7,12 @@ export interface IBlmConnections {
 export interface IBlmEntity {
     id: number;
     time: number;
+    rpw: number;
+    nof: number;
+    noif: number;
     isExist: boolean;
     isChecked: boolean;
     isConnected: boolean;
     next: IBlmConnections;
+    previous: IBlmConnections;
 }
