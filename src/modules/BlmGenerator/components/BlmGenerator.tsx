@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { Button, Grid } from '@material-ui/core';
-import * as _ from 'lodash';
+import { chunk, includes, remove, shuffle, uniq } from 'lodash';
 import { GraphColumn } from '..';
 import {
     lineHeight,
@@ -82,12 +82,12 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         let blm: IBlmEntity[][];
 
         blmGeneratedLength = this.setOptimalLineLenght();
-        blm = _.chunk(this.createEmptyArray(blmGeneratedLength, 0), lineHeight);
+        blm = chunk(this.createEmptyArray(blmGeneratedLength, 0), lineHeight);
         blm = this.createMainLine(blm);
         this.addRestOfElements(blm);
         blm = this.setElementsIdAndTime(blm);
         blm = this.countImmediateFollowers(blm);
-        // blm = this.countFollowers(blm);
+        blm = this.countFollowers(blm);
         blm = this.measureWeight(blm);
 
         this.props.blmModel(blm);
@@ -122,12 +122,12 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
                 },
             };
         }
-        blm = _.shuffle(blm);
+        blm = shuffle(blm);
         return blm;
     }
 
     private deleteEmptyColumns(blmModel: IBlmEntity[][]): IBlmEntity[][] {
-        const blm =  _.remove(blmModel, (n) => {
+        const blm =  remove(blmModel, (n) => {
             let shouldDelete: boolean = true;
             for (let i = 0; i < lineHeight; i++) {
                 if (n[i].isExist === true) { shouldDelete = false; }
@@ -138,7 +138,7 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
     }
 
     private setOptimalLineLenght(): number {
-        const blm: IBlmEntity[][] = _.chunk(this.createEmptyArray(maxLineLength, numberOfMachines), lineHeight);
+        const blm: IBlmEntity[][] = chunk(this.createEmptyArray(maxLineLength, numberOfMachines), lineHeight);
         let blmGeneratedLength: number = this.deleteEmptyColumns(blm).length;
         if (blmGeneratedLength < minLineLength) { blmGeneratedLength = minLineLength; }
         return blmGeneratedLength;
@@ -319,28 +319,29 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         return blm;
     }
 
-    // private countFollowers(blm: IBlmEntity[][]): IBlmEntity[][] {
-    //     const blmLineLength = blm.length;
-    //     let shouldCount: boolean;
-    //     let nof: number;
-    //     do {
-    //         for (let i = 0; i < blmLineLength; i++) {
-    //             for (let j = 0; j < lineHeight; j++) {
-    //                 if (j !== 0) {
-    //                     if (blm[i][j].next.top && blm[i + 1][j - 1].nof !== -1) {
-    //                     }
-    //                 }
-    //                 if (blm[i][j].next.middle && blm[i + 1][j].nof !== -1) {
-    //                 }
-    //                 if (j !== lineHeight) {
-    //                     if (blm[i][j].next.bottom && blm[i + 1][j + 1].nof !== -1) {
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     } while (false);
-    //     return blm;
-    // }
+    private countFollowers(blm: IBlmEntity[][]): IBlmEntity[][] {
+        const blmLineLength = blm.length;
+        let followers: number[] = [];
+        for (let i = 0; i < blmLineLength; i++) {
+            for (let j = 0; j < lineHeight; j++) {
+                if (blm[i][j].isExist) {
+                    followers = [];
+                    followers.push(blm[i][j].id);
+                    for (let x = i; x < blmLineLength; x++) {
+                        for (let y = 0; y < lineHeight; y++) {
+                            if (includes(followers, blm[x][y].id)) {
+                                if (blm[x][y].next.top) {followers.push(blm[x + 1][y - 1].id); }
+                                if (blm[x][y].next.middle) {followers.push(blm[x + 1][y].id); }
+                                if (blm[x][y].next.bottom) {followers.push(blm[x + 1][y + 1].id); }
+                            }
+                        }
+                    }
+                    blm[i][j].nof = uniq(followers).length - 1;
+                }
+            }
+        }
+        return blm;
+    }
 
     private measureWeight(blm: IBlmEntity[][]): IBlmEntity[][] {
         const blmLineLength = blm.length;
