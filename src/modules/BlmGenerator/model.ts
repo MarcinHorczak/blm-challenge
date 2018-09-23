@@ -14,5 +14,4 @@ export interface IBlmEntity {
     isChecked: boolean;
     isConnected: boolean;
     next: IBlmConnections;
-    previous: IBlmConnections;
 }

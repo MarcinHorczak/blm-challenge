@@ -110,11 +110,6 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
                 isChecked: false,
                 isConnected: false,
                 isExist: i < machines ? true : false,
-                previous: {
-                    bottom: false,
-                    middle: false,
-                    top: false,
-                },
                 next: {
                     bottom: false,
                     middle: false,
