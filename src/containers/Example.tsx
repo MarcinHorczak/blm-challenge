@@ -5,11 +5,11 @@ import { BlmGenerator } from '../modules/BlmGenerator';
 import { IBlmEntity } from '../modules/BlmGenerator/model';
 import { BlmRanking } from '../modules/BlmRanking';
 
-interface IPanelState {
+interface IExampleState {
     blmModel: IBlmEntity[][];
 }
 
-export class Panel extends React.Component<{}, IPanelState> {
+export class Example extends React.Component<{}, IExampleState> {
     constructor(props: {}) {
         super(props);
         this.state = {
@@ -22,15 +22,16 @@ export class Panel extends React.Component<{}, IPanelState> {
         return (
             <Grid container direction="row" className="blm">
                 <Grid item container>
-                    <Typography variant="title">BLM Generator</Typography>
+                    <Typography variant="title">
+                        BLM Examples Generator
+                    </Typography>
                 </Grid>
                 <BlmGenerator
                     blmModel={(blm: IBlmEntity[][]) => {this.setState({ blmModel: blm }); }}
                 />
-                <hr style={{width: '200%'}}/>
-                <div style={{margin: '0 20px', width: '100%'}}>
+                <Grid item container className="blm-ranking">
                     <BlmRanking blm={blmModel}/>
-                </div>
+                </Grid>
             </Grid>
         );
     }

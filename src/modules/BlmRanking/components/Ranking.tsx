@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Grid, Table, TableBody, TableCell, TableRow, Typography } from '@material-ui/core';
+import { Grid, Table, TableBody, TableCell, TableRow, Toolbar, Typography } from '@material-ui/core';
 import { filter, get, isNil, join, reverse, sortBy } from 'lodash';
 import { IBlmEntity } from '../../BlmGenerator/model';
 import { blmRankingAlgoritm, IBlmRanking } from '../settings';
@@ -69,14 +69,16 @@ export class Ranking extends React.Component<IRankingProps, {}> {
                             </Table>
                         </Grid>
                         <Grid container item>
-                            <Typography>
-                                {algoritm}: [
-                                {algoritm === 'WET' && this.mapToRanking(wet)}
-                                {algoritm === 'RPW' && this.mapToRanking(rpw)}
-                                {algoritm === 'NOF' && this.mapToRanking(nof)}
-                                {algoritm === 'NOIF' && this.mapToRanking(noif)}
-                                ]
-                            </Typography>
+                            <Toolbar>
+                                <Typography>
+                                    {algoritm}: [
+                                    {algoritm === 'WET' && this.mapToRanking(wet)}
+                                    {algoritm === 'RPW' && this.mapToRanking(rpw)}
+                                    {algoritm === 'NOF' && this.mapToRanking(nof)}
+                                    {algoritm === 'NOIF' && this.mapToRanking(noif)}
+                                    ]
+                                </Typography>
+                            </Toolbar>
                         </Grid>
                     </Grid>
                 }

@@ -12,6 +12,7 @@ import {
     minTimeRange,
     numberOfMachines,
 } from '../../../settings';
+import { FormattedText } from '../../FormattedText';
 import { IBlmEntity } from '../model';
 
 interface IBlmGeneratorProps {
@@ -54,11 +55,10 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         return(
             <Grid container direction="row">
                 <Grid container>
-                    <Button onClick={() => this.generateBlmModel()} color="primary" variant="outlined">
-                        Generate New Graph
+                    <Button onClick={() => this.generateBlmModel()} color="primary" variant="contained">
+                        <FormattedText value="generateNewGraph"/>
                     </Button>
                 </Grid>
-                <hr style={{width: '200%'}}/>
                 <Grid container className="blm-graph" style={{minWidth: blmLineLength * minBlmElementSize}}>
                     {
                         blmModel.map((item: IBlmEntity[], i: number) => {
@@ -67,7 +67,7 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
                                     column={item}
                                     key={i}
                                     blmLineLength={blmLineLength}
-                                    screenWidth={screenWidth}
+                                    screenWidth={screenWidth - 30}
                                 />
                             );
                         })
