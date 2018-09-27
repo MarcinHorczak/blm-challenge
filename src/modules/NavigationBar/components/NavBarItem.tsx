@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Icon, MenuItem, Typography } from '@material-ui/core';
 import { isUndefined } from 'lodash';
 import { Link } from 'react-router-dom';
+import { T } from '../../FormattedText';
 
 interface INavBarItemProps {
     link: string;
@@ -24,7 +25,7 @@ export class NavBarItem extends React.Component<INavBarItemProps, {}> {
                         variant="subheading"
                         color="secondary"
                     >
-                        {name}
+                        <T value={name}/>
                     </Typography>
                 </MenuItem>
             </Link>

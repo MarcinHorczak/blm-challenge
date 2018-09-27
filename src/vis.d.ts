@@ -1,1 +1,1 @@
-declare module 'react-vis';
+declare module 'react-vis-network';

@@ -2,76 +2,32 @@ import * as React from 'react';
 
 import { Button, Grid } from '@material-ui/core';
 import { chunk, includes, remove, shuffle, uniq } from 'lodash';
-import { GraphColumn } from '..';
 import {
     lineHeight,
     maxLineLength,
-    maxTimeRange,
-    minBlmElementSize,
-    minLineLength,
+    maxTimeRange,    minLineLength,
     minTimeRange,
     numberOfMachines,
 } from '../../../settings';
-import { FormattedText } from '../../FormattedText';
+import { T } from '../../FormattedText';
 import { IBlmEntity } from '../model';
 
 interface IBlmGeneratorProps {
     blmModel: (blmModel: IBlmEntity[][]) => void;
 }
 
-interface IBlmGeneratorState {
-    blmModel: IBlmEntity[][];
-    blmLineLength: number;
-    screenWidth: number;
-}
-
-export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGeneratorState> {
-    constructor(props: IBlmGeneratorProps) {
-        super(props);
-        this.state = {
-            blmModel: [],
-            blmLineLength: 0,
-            screenWidth: 0,
-        };
-        this.updateWindowWidth = this.updateWindowWidth.bind(this);
-    }
-
+export class BlmGenerator extends React.Component<IBlmGeneratorProps, {}> {
     public componentDidMount() {
         this.generateBlmModel();
-        this.updateWindowWidth();
-        window.addEventListener('resize', this.updateWindowWidth);
-    }
-
-    public componentWillUnmount() {
-        window.removeEventListener('resize', this.updateWindowWidth);
-    }
-
-    public updateWindowWidth() {
-        this.setState({ screenWidth: window.innerWidth });
     }
 
     public render() {
-        const { blmModel, blmLineLength, screenWidth } = this.state;
         return(
             <Grid container direction="row">
                 <Grid container>
                     <Button onClick={() => this.generateBlmModel()} color="primary" variant="contained">
-                        <FormattedText value="generateNewGraph"/>
+                        <T value="generateNewGraph"/>
                     </Button>
-                </Grid>
-                <Grid container className="blm-graph" style={{minWidth: blmLineLength * minBlmElementSize}}>
-                    {
-                        blmModel.map((item: IBlmEntity[], i: number) => {
-                            return (
-                                <GraphColumn
-                                    column={item}
-                                    key={i}
-                                    blmLineLength={blmLineLength}
-                                    screenWidth={screenWidth - 30}
-                                />
-                            );
-                        })
-                    }
                 </Grid>
             </Grid>
         );
@@ -91,10 +47,6 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, IBlmGenera
         blm = this.measureWeight(blm);
 
         this.props.blmModel(blm);
-        this.setState({
-            blmModel: blm,
-            blmLineLength: blm.length,
-        });
     }
 
     private createEmptyArray(lineLength: number, machines: number): IBlmEntity[] {

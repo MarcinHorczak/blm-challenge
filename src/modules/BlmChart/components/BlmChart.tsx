@@ -1,35 +1,89 @@
 import * as React from 'react';
-import {
-  HorizontalBarSeries,
-  HorizontalBarSeriesCanvas,
-  HorizontalGridLines,
-  VerticalGridLines,
-  XAxis,
-  XYPlot,
-  YAxis,
-} from 'react-vis';
 
-export default class Example extends React.Component {
-  public state = {
-    useCanvas: false,
-  };
-  public render() {
-    const {useCanvas} = this.state;
-    const BarSeries = useCanvas
-      ? HorizontalBarSeriesCanvas
-      : HorizontalBarSeries;
-    return (
-      <div>
-        <XYPlot width={700} height={300} stackBy="x">
-          <VerticalGridLines />
-          <HorizontalGridLines />
-          <XAxis />
-          <YAxis />
-          <BarSeries data={[{y: -1, x: 10}, {y: 4, x: 5}, {y: 5, x: 15}]} />
-          <BarSeries data={[{y: -2, x: 12}, {y: 4, x: 2}, {y: 5, x: 11}]} />
-          <BarSeries data={[{y: 0, x: 12}, {y: 4, x: 2}, {y: 5, x: 11}]} />
-        </XYPlot>
-      </div>
-    );
-  }
+import { isNull } from 'lodash';
+import * as vis from 'vis';
+import { IBlmEntity } from '../../BlmGenerator/model';
+import { IEdgeEntity, INodeEntity } from '../model';
+
+interface IBlmChartProps {
+    blm: IBlmEntity[][];
+}
+
+export default class BlmChart extends React.Component<IBlmChartProps, {}> {
+    public componentDidMount() {
+        this.createGraph();
+    }
+
+    public componentDidUpdate(prevProps: IBlmChartProps, _: any) {
+        if (prevProps.blm !== this.props.blm) {
+            this.createGraph();
+        }
+    }
+
+    public render() {
+        return (
+            <div id="blm-vis-graph" style={{width: '100%'}}/>
+        );
+    }
+
+    private createGraph() {
+        let network: vis.Network | null = null;
+        this.destroyGraph(network);
+        const nodes: INodeEntity[] = [];
+        const edgesArray: IEdgeEntity[] = [];
+
+        this.props.blm.map((column: IBlmEntity[], i: number) => {
+            column.map((item: IBlmEntity, j: number) => {
+                if (item.isExist) {
+                    nodes.push({
+                        id: item.id,
+                        label: `${item.id}(${item.time})`,
+                        fixed: true,
+                        x: i * 120,
+                        y: j * 70,
+                    });
+                    if (item.next.top) {edgesArray.push({
+                        from: item.id,
+                        to: this.props.blm[i + 1][j - 1].id,
+                    }); }
+                    if (item.next.middle) {edgesArray.push({
+                        from: item.id,
+                        to: this.props.blm[i + 1][j].id,
+                    }); }
+                    if (item.next.bottom) {edgesArray.push({
+                        from: item.id,
+                        to: this.props.blm[i + 1][j + 1].id,
+                    }); }
+                }
+            });
+        });
+        const edges = new vis.DataSet(edgesArray);
+        const container = document.getElementById('blm-vis-graph');
+        const data = {
+            nodes,
+            edges,
+        };
+        const options = {
+            interaction: {
+                navigationButtons: true,
+                keyboard: true,
+                hover: true,
+            },
+            edges: { arrows: 'to' },
+            height: '400',
+            width: '100%',
+        };
+        if (!isNull(container)) {network = new vis.Network(container, data, options); }
+        if (!isNull(network)) {network.on('select', (params: any) => {
+            const dupa = document.getElementById('selection');
+            if (!isNull(dupa)) { dupa.innerHTML = 'Selection: ' + params.nodes; }
+        }); }
+    }
+
+    private destroyGraph(network: any) {
+        if (network !== null) {
+            network.destroy();
+            network = null;
+        }
+    }
 }

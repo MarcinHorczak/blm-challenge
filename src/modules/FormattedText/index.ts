@@ -1,1 +1,1 @@
-export { FormattedText } from './components/FormattedText';
+export { T } from './components/FormattedText';

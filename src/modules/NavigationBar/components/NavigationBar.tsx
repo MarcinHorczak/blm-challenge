@@ -5,6 +5,7 @@ import { Menu } from '@material-ui/icons';
 import { BorderColor, Folder, School } from '@material-ui/icons';
 import { connect } from 'react-redux';
 import { AnyAction } from 'redux';
+import { T } from '../../FormattedText';
 import { languageAction } from '../actions';
 import { NavBarItem } from './NavBarItem';
 
@@ -37,8 +38,8 @@ class NavigationBarContent extends React.Component<INavigationBarProps, INavigat
                     >
                         <Menu/>
                     </IconButton>
-                    <Typography variant="title" color="inherit">
-                        BLM Challenge
+                    <Typography variant="title" color="inherit" style={{flex: 1}}>
+                        <T value="title"/>
                     </Typography>
                     <Button onClick={() => this.setLanguage('pl')}>pl</Button>
                     <Button onClick={() => this.setLanguage('en')}>en</Button>
@@ -55,14 +56,14 @@ class NavigationBarContent extends React.Component<INavigationBarProps, INavigat
                         onClick={this.toggleDrawer}
                         onKeyDown={this.toggleDrawer}
                     >
-                        <NavBarItem link="" name="MENU:" disabled/>
-                        <NavBarItem link="/examples" name="Examples Generator">
+                        <NavBarItem link="" name="menu" disabled/>
+                        <NavBarItem link="/examples" name="blmExamplesGenerator">
                             <Folder color="secondary"/>
                         </NavBarItem>
-                        <NavBarItem link="/practice" name="Practice Section">
+                        <NavBarItem link="/practice" name="practiceSection">
                             <BorderColor color="secondary"/>
                         </NavBarItem>
-                        <NavBarItem link="/learn" name="Learn">
+                        <NavBarItem link="/learn" name="learn">
                             <School color="secondary"/>
                         </NavBarItem>
                     </div>

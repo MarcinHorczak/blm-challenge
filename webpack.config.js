@@ -46,9 +46,10 @@ module.exports = (env = {}) => {
                             : MiniCssExtractPlugin.loader,
                         'css-loader',
                         'sass-loader',
-                      ],
+                    ],
                 },
-                { test: /\.(png|jpg|jpeg|gif|svg)$/, use: 'url-loader?limit=25000' }
+                { test: /\.(png|jpg|jpeg|gif|svg)$/, use: 'url-loader?limit=25000' },
+                { test: /\.json$/, use: 'json-loader', use: 'json-loader' }
             ]
         },
         plugins: 

@@ -1,0 +1,22 @@
+{
+    "pl": {
+        "title": "BLM",
+        "generateNewGraph": "Wygeneruj Nowy Graf",
+        "blmExamplesGenerator": "Generator Grafów BLM",
+        "algoritm": "algorytm",
+        "none": "wyczyść",
+        "practiceSection": "Trening",
+        "learn": "Nauka",
+        "menu": "MENU:"
+    },
+    "en": {
+        "title": "BLM Challenge",
+        "generateNewGraph": "Generate New Graph",
+        "blmExamplesGenerator": "BLM Examples Generator",
+        "algoritm": "algoritm",
+        "none": "none",
+        "practiceSection": "Practice Section",
+        "learn": "Learn",
+        "menu": "MENU:"
+    }
+}

@@ -1,5 +1,6 @@
 import { FormControl, InputLabel, MenuItem, Select } from '@material-ui/core';
 import * as React from 'react';
+import { T } from '../../FormattedText';
 
 interface ISelectAlgoritmProps {
     algoritm: string;
@@ -23,7 +24,7 @@ export class SelectAlgoritm extends React.Component<ISelectAlgoritmProps, ISelec
         const { algoritm, setAlgoritm } = this.props;
         return(
             <FormControl>
-                <InputLabel>Algoritm</InputLabel>
+                <InputLabel><T value="algoritm"/></InputLabel>
                 <Select
                     open={open}
                     onClose={() => this.setState({ open: false })}
@@ -32,7 +33,7 @@ export class SelectAlgoritm extends React.Component<ISelectAlgoritmProps, ISelec
                     onChange={(event: any) => setAlgoritm(event.target.value)}
                     className="blm-ranking-algoritm-select"
                 >
-                    <MenuItem value=""><em>None</em></MenuItem>
+                    <MenuItem value=""><em><T value="none"/></em></MenuItem>
                     <MenuItem value="WET">WET</MenuItem>
                     <MenuItem value="RPW">RPW</MenuItem>
                     <MenuItem value="NOF">NOF</MenuItem>
