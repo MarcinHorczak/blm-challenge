@@ -31,7 +31,6 @@ export class Example extends React.Component<{}, IExampleState> {
                 <BlmGenerator
                     blmModel={(blm: IBlmEntity[][]) => {this.setState({ blmModel: blm }); }}
                 />
-                {/* <BlmGraph blm={blmModel}/> */}
                 <BlmChart blm={blmModel}/>
                 <Grid item container className="blm-ranking">
                     <BlmRanking blm={blmModel}/>

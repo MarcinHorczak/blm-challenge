@@ -74,10 +74,14 @@ export default class BlmChart extends React.Component<IBlmChartProps, {}> {
             width: '100%',
         };
         if (!isNull(container)) {network = new vis.Network(container, data, options); }
-        if (!isNull(network)) {network.on('select', (params: any) => {
-            const dupa = document.getElementById('selection');
-            if (!isNull(dupa)) { dupa.innerHTML = 'Selection: ' + params.nodes; }
-        }); }
+        if (!isNull(network)) {
+            network.on('select', (params: any) => {
+                const dupa = document.getElementById('selection');
+                if (!isNull(dupa)) {
+                    dupa.innerHTML = 'Selection: ' + params.nodes;
+                }
+            });
+        }
     }
 
     private destroyGraph(network: any) {

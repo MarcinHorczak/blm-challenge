@@ -1,26 +1,3 @@
 .blm {
     padding: $container-padding;
-    .blm-graph {
-        width: auto;
-        margin: 0 auto;
-        padding: $container-padding 0;
-
-        &-element {
-            background-color: #0cb555;
-            border: 1px solid;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            &:hover {
-                background-color: #FF0000 !important;
-            }
-        }
-
-        &-ranking {
-            margin: 0 20px;
-            width: 100%;
-        }
-    }
 }
