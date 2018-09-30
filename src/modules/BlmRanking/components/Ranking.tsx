@@ -1,18 +1,20 @@
 import * as React from 'react';
 
-import { Grid, Table, TableBody, TableCell, TableRow, Toolbar, Typography } from '@material-ui/core';
-import { filter, get, isNil, join, reverse, sortBy } from 'lodash';
+import { Grid, Toolbar, Typography } from '@material-ui/core';
+import { filter, join, reverse, sortBy } from 'lodash';
+import { GanttChart } from '../../BlmGanttChart';
 import { IBlmEntity } from '../../BlmGenerator/model';
-import { blmRankingAlgoritm, IBlmRanking } from '../settings';
+import { RankingTable } from './RankingTable';
 
 interface IRankingProps {
     algoritm: string;
     blm: IBlmEntity[][];
+    blmMinTime: number;
 }
 
 export class Ranking extends React.Component<IRankingProps, {}> {
     public render() {
-        const { algoritm, blm } = this.props;
+        const { algoritm, blm, blmMinTime } = this.props;
         const blmAlgoritm: IBlmEntity[] = [];
         blm.map((column: IBlmEntity[]) =>
             filter(column, (o: IBlmEntity) => o.isExist)
@@ -31,43 +33,10 @@ export class Ranking extends React.Component<IRankingProps, {}> {
                 {algoritm === ''
                     ? null
                     : <Grid container>
-                        <Grid container item>
-                            <Table padding="checkbox">
-                                <TableBody>
-                                    <TableRow>
-                                        <TableCell>Number</TableCell>
-                                        {
-                                            ranking.map((item: IBlmEntity) =>
-                                                <TableCell key={item.id}>{item.id}</TableCell>,
-                                            )
-                                        }
-                                    </TableRow>
-                                    <TableRow>
-                                        {blmRankingAlgoritm.map((a: IBlmRanking) => {
-                                            return (
-                                                !algoritm.localeCompare(a.name) &&
-                                                <>
-                                                    <TableCell>{a.countBy}</TableCell>
-                                                    {
-                                                        ranking.map((item: IBlmEntity) =>
-                                                            <TableCell key={item.id}>
-                                                                {
-                                                                    get(item,
-                                                                        isNil(a.getBy)
-                                                                            ? a.name.toLocaleLowerCase()
-                                                                            : a.getBy.toLocaleLowerCase(),
-                                                                        )
-                                                                }
-                                                            </TableCell>,
-                                                        )
-                                                    }
-                                                </>
-                                            );
-                                        })}
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </Grid>
+                        <RankingTable
+                            ranking={ranking}
+                            algoritm={algoritm}
+                        />
                         <Grid container item>
                             <Toolbar>
                                 <Typography>
@@ -79,6 +48,18 @@ export class Ranking extends React.Component<IRankingProps, {}> {
                                     ]
                                 </Typography>
                             </Toolbar>
+                        </Grid>
+                        <Grid container item>
+                            <GanttChart
+                                blmMinTime={blmMinTime}
+                                ranking={
+                                    algoritm === 'WET' ? wet
+                                    : algoritm === 'RPW' ? rpw
+                                    : algoritm === 'NOF' ? nof
+                                    : algoritm === 'NOIF' ? noif
+                                    : []
+                                }
+                            />
                         </Grid>
                     </Grid>
                 }

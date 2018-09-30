@@ -14,6 +14,7 @@ import { IBlmEntity } from '../model';
 
 interface IBlmGeneratorProps {
     blmModel: (blmModel: IBlmEntity[][]) => void;
+    blmElementMinTime: (time: number) => void;
 }
 
 export class BlmGenerator extends React.Component<IBlmGeneratorProps, {}> {
@@ -67,6 +68,11 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, {}> {
                     middle: false,
                     top: false,
                 },
+                previous: {
+                    bottom: false,
+                    middle: false,
+                    top: false,
+                },
             };
         }
         blm = shuffle(blm);
@@ -105,9 +111,18 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, {}> {
                     if (keepPosition + randPos > lineHeight - 1) {randPos = 0; }
                     blm[1][keepPosition + randPos].isExist = true;
                     blm[1][keepPosition + randPos].isConnected = true;
-                    if (randPos === -1) {blm[0][keepPosition].next.top = true; }
-                    if (randPos === 0) {blm[0][keepPosition].next.middle = true; }
-                    if (randPos === 1) {blm[0][keepPosition].next.bottom = true; }
+                    if (randPos === -1) {
+                        blm[0][keepPosition].next.top = true;
+                        blm[1][keepPosition - 1].previous.bottom = true;
+                    }
+                    if (randPos === 0) {
+                        blm[0][keepPosition].next.middle = true;
+                        blm[1][keepPosition].previous.middle = true;
+                    }
+                    if (randPos === 1) {
+                        blm[0][keepPosition].next.bottom = true;
+                        blm[1][keepPosition + 1].previous.top = true;
+                    }
                     j = -1;
                     i++;
                 } else {
@@ -118,9 +133,18 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, {}> {
                         this.createNewElement(blm, i + 1, j + randPos);
                         blm[i + 1][j + randPos].isConnected = true;
                         if (i < blm.length - 1) {
-                            if (randPos === -1) {blm[i][j].next.top = true; }
-                            if (randPos === 0) {blm[i][j].next.middle = true; }
-                            if (randPos === 1) {blm[i][j].next.bottom = true; }
+                            if (randPos === -1) {
+                                blm[i][j].next.top = true;
+                                blm[i + 1][j - 1].previous.bottom = true;
+                            }
+                            if (randPos === 0) {
+                                blm[i][j].next.middle = true;
+                                blm[i + 1][j].previous.middle = true;
+                            }
+                            if (randPos === 1) {
+                                blm[i][j].next.bottom = true;
+                                blm[i + 1][j + 1].previous.top = true;
+                            }
                         }
                     }
                 }
@@ -214,17 +238,20 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, {}> {
     private setElementsIdAndTime(blm: IBlmEntity[][]): IBlmEntity[][] {
         let iterator = 1;
         let time;
+        let maxTime = 0;
         const blmLineLength = blm.length;
         for (let i = 0; i < blmLineLength; i++) {
             for (let j = 0; j < lineHeight; j++) {
                 if (blm[i][j].isExist) {
                     time = Math.floor(Math.random() * (maxTimeRange - minTimeRange) + minTimeRange);
                     blm[i][j].time = time;
+                    if (maxTime < time) {maxTime = time; }
                     blm[i][j].id = iterator;
                     iterator++;
                 }
             }
         }
+        this.props.blmElementMinTime(maxTime);
         return blm;
     }
 
@@ -238,12 +265,15 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, {}> {
         switch (toJ - fromJ) {
             case(-1):
                 blm[fromI][fromJ].next.top = true;
+                blm[toI][toJ].previous.bottom = true;
                 break;
             case(0):
                 blm[fromI][fromJ].next.middle = true;
+                blm[toI][toJ].previous.middle = true;
                 break;
             case(1):
                 blm[fromI][fromJ].next.bottom = true;
+                blm[toI][toJ].previous.top = true;
                 break;
         }
         blm[fromI][fromJ].isConnected = true;

@@ -41,8 +41,8 @@ class NavigationBarContent extends React.Component<INavigationBarProps, INavigat
                     <Typography variant="title" color="inherit" style={{flex: 1}}>
                         <T value="title"/>
                     </Typography>
-                    <Button onClick={() => this.setLanguage('pl')}>pl</Button>
-                    <Button onClick={() => this.setLanguage('en')}>en</Button>
+                    <Button color="inherit" onClick={() => this.setLanguage('pl')}>pl</Button>
+                    <Button color="inherit" onClick={() => this.setLanguage('en')}>en</Button>
                 </Toolbar>
                 <Drawer
                     open={isDrawerOpened}

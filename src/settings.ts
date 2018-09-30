@@ -6,3 +6,4 @@ export const maxBlmElementSize = 80;
 export const minBlmElementSize = 60;
 export const minTimeRange = 1;
 export const maxTimeRange = 8;
+export const defaultCycleTime = 12;

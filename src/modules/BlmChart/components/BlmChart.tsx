@@ -22,13 +22,12 @@ export default class BlmChart extends React.Component<IBlmChartProps, {}> {
 
     public render() {
         return (
-            <div id="blm-vis-graph" style={{width: '100%'}}/>
+            <div id="blm-vis-graph" style={{width: '100%', border: '1px solid'}}/>
         );
     }
 
     private createGraph() {
         let network: vis.Network | null = null;
-        this.destroyGraph(network);
         const nodes: INodeEntity[] = [];
         const edgesArray: IEdgeEntity[] = [];
 
@@ -70,7 +69,7 @@ export default class BlmChart extends React.Component<IBlmChartProps, {}> {
                 hover: true,
             },
             edges: { arrows: 'to' },
-            height: '400',
+            height: '300',
             width: '100%',
         };
         if (!isNull(container)) {network = new vis.Network(container, data, options); }
@@ -81,13 +80,6 @@ export default class BlmChart extends React.Component<IBlmChartProps, {}> {
                     dupa.innerHTML = 'Selection: ' + params.nodes;
                 }
             });
-        }
-    }
-
-    private destroyGraph(network: any) {
-        if (network !== null) {
-            network.destroy();
-            network = null;
         }
     }
 }
