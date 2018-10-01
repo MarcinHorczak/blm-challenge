@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { AppBar, Button, Drawer, IconButton, Toolbar, Typography } from '@material-ui/core';
 import { Menu } from '@material-ui/icons';
-import { BorderColor, Folder, School } from '@material-ui/icons';
+import { BorderColor, Folder, School, Settings } from '@material-ui/icons';
 import { connect } from 'react-redux';
 import { AnyAction } from 'redux';
 import { T } from '../../FormattedText';
@@ -65,6 +65,9 @@ class NavigationBarContent extends React.Component<INavigationBarProps, INavigat
                         </NavBarItem>
                         <NavBarItem link="/learn" name="learn">
                             <School color="secondary"/>
+                        </NavBarItem>
+                        <NavBarItem link="/settings" name="settings">
+                            <Settings color="secondary"/>
                         </NavBarItem>
                     </div>
                 </Drawer>

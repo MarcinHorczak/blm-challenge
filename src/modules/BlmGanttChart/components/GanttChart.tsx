@@ -48,18 +48,20 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
                 majorLabels: {
                   millisecond: '',
                 },
-              },
+            },
             min: 0,
             max: 30,
             multiselect: true,
             stack: false,
             editable: {
-                updateTime: true,
-                updateGroup: true,
-                remove: true,
+                updateTime: false,
+                updateGroup: false,
+                remove: false,
                 overrideItems: false,
             },
             groupOrder: (a: any, b: any) => a.id - b.id,
+            moveable: true,
+            zoomeable: true,
         };
 
         if (!isNull(container)) {
@@ -136,7 +138,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
         for (let i = 1; i <= numberOfGroups; i++) {
             groups.push({
                 id: i,
-                content: `Cycle ${i}`,
+                content: `Series ${i}`,
             });
             groups.sort((a: IGroupsEntity, b: IGroupsEntity) => a.id - b.id);
         }

@@ -64,9 +64,11 @@ export default class BlmChart extends React.Component<IBlmChartProps, {}> {
         };
         const options = {
             interaction: {
-                navigationButtons: true,
+                navigationButtons: false,
                 keyboard: true,
                 hover: true,
+                dragView: false,
+                zoomView: false,
             },
             edges: { arrows: 'to' },
             height: '300',

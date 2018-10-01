@@ -7,7 +7,7 @@ export class Footer extends React.Component {
         return(
             <Grid item container className="footer">
                 <Typography className="footer-text">
-                    Copyright &copy; - Marcin Horczak
+                    Copyright &copy; Marcin Horczak - Engineer Thesis 2018
                 </Typography>
             </Grid>
         );

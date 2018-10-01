@@ -8,6 +8,7 @@ export const t = {
         practiceSection: 'Trening',
         learn: 'Nauka',
         menu: 'MENU:',
+        settings: 'Ustawienia',
     },
     en: {
         title: 'BLM Challenge',
@@ -18,5 +19,6 @@ export const t = {
         practiceSection: 'Practice Section',
         learn: 'Learn',
         menu: 'MENU:',
+        settings: 'Settings',
     },
 };

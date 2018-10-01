@@ -10,6 +10,7 @@ interface ISelectCycleTimeProps {
 
 interface ISelectCycleTimeState {
     isError: boolean;
+    errorMessage: string;
 }
 
 export class SelectCycleTime extends React.Component<ISelectCycleTimeProps, ISelectCycleTimeState> {
@@ -17,17 +18,18 @@ export class SelectCycleTime extends React.Component<ISelectCycleTimeProps, ISel
         super(props);
         this.state = {
             isError: false,
+            errorMessage: '',
         };
     }
 
     public render() {
         const { time } = this.props;
-        const { isError } = this.state;
+        const { isError, errorMessage } = this.state;
         return(
             <Grid container>
                 <TextField
                     id="standard-number"
-                    label="Cycle Time"
+                    label="Series"
                     value={time}
                     onChange={(event: any) => this.onChange(event.target.value)}
                     type="number"
@@ -36,17 +38,19 @@ export class SelectCycleTime extends React.Component<ISelectCycleTimeProps, ISel
                     }}
                     margin="normal"
                     error={isError}
+                    helperText={errorMessage}
                 />
             </Grid>
         );
     }
 
     private onChange(value: any) {
-        if (value < this.props.blmMinTime) {
-            this.setState({ isError: true });
+        const { blmMinTime } = this.props;
+        if (value < blmMinTime) {
+            this.setState({ isError: true, errorMessage: `Value cannot be lower then ${blmMinTime}` });
         } else {
             this.props.getTime(value);
-            this.setState({ isError: false });
+            this.setState({ isError: false, errorMessage: '' });
         }
     }
 }

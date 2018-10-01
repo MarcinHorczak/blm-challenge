@@ -24,7 +24,7 @@ export class Example extends React.Component<{}, IExampleState> {
     public render() {
         const { blmModel, blmMinTime } = this.state;
         return (
-            <Grid container direction="row" className="blm">
+            <Grid direction="row" className="blm">
                 <Grid item container>
                     <Typography variant="title">
                         <T value="blmExamplesGenerator"/>
