@@ -3,7 +3,7 @@ import * as React from 'react';
 import { isNull } from 'lodash';
 import * as vis from 'vis';
 import { IBlmEntity } from '../../BlmGenerator/model';
-import { IGanttRankingEntity, IGroupsEntity, IItemsEntity } from '../model';
+import { IGroupsEntity, IItemsEntity } from '../model';
 
 interface IGanttChartProps {
     blmMinTime: number;
@@ -36,8 +36,9 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
     private createGraph() {
         const container = document.getElementById('visualization');
 
-        const items = new vis.DataSet(this.setItems());
-        const groups = this.setGroups(this.setItems());
+        const settedItems = this.setItems();
+        const items = new vis.DataSet(settedItems);
+        const groups = this.setGroups(settedItems);
 
         const options = {
             format: {
@@ -58,6 +59,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
                 remove: true,
                 overrideItems: false,
             },
+            groupOrder: (a: any, b: any) => a.id - b.id,
         };
 
         if (!isNull(container)) {
@@ -67,8 +69,9 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
     }
 
     private updateTimeline(timeline: vis.Timeline) {
-        const items = new vis.DataSet(this.setItems());
-        const groups = this.setGroups(this.setItems());
+        const settedItems = this.setItems();
+        const items = new vis.DataSet(settedItems);
+        const groups = this.setGroups(settedItems);
 
         timeline.setData({
             groups,
@@ -77,36 +80,50 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
     }
 
     private setItems(): IItemsEntity[] {
-        const ganttRanking: IGanttRankingEntity[] = [];
-        this.props.ranking.map((item: IBlmEntity) => {
-            ganttRanking.push({
-                id: item.id,
-                isSetted: false,
-                time: item.time,
-                previous: item.previous,
-            });
-        });
+        const { ranking } = this.props;
         const rankingItems: IItemsEntity[] = [];
         let actualCycleEndTime: number = 0;
-        const cycleNumber: number = 1;
+        let cycleNumber: number = 1;
         let idIterator: number = 0;
-        // do {
-        for (let i = 0; i < ganttRanking.length; i++) {
-                if (ganttRanking[i].time + actualCycleEndTime <= this.props.blmMinTime && !ganttRanking[i].isSetted) {
-                    rankingItems.push({
-                        id: idIterator,
-                        content: `${ganttRanking[i].id}(${ganttRanking[i].time})`,
-                        group: cycleNumber,
-                        start: actualCycleEndTime,
-                        end: actualCycleEndTime + ganttRanking[i].time,
+        const rankingLength = ranking.length;
+        let isGanttChartCreated: boolean;
+        let isReady;
+        let nextCycle;
+        do {
+            for (let i = 0; i < rankingLength; i++) {
+                isReady = true;
+                nextCycle = true;
+                if (ranking[i].time + actualCycleEndTime <= this.props.blmMinTime && !ranking[i].isSetted) {
+                    ranking[i].depends.map((d: number) => {
+                        for (let j = 0; j < rankingLength; j++) {
+                            if (d === ranking[j].id && !ranking[j].isSetted) {isReady = false; }
+                        }
                     });
-                    ganttRanking[i].isSetted = true;
-                    idIterator++;
-                    actualCycleEndTime += ganttRanking[i].time;
-                    i = 0;
+                    if (isReady) {
+                        rankingItems.push({
+                            id: idIterator,
+                            content: `${ranking[i].id}(${ranking[i].time})`,
+                            group: cycleNumber,
+                            start: actualCycleEndTime,
+                            end: actualCycleEndTime + ranking[i].time,
+                        });
+                        ranking[i].isSetted = true;
+                        idIterator++;
+                        actualCycleEndTime += ranking[i].time;
+                        i = -1;
+                        nextCycle = false;
+                    }
                 }
             }
-        // } while (false);
+            if (nextCycle) {
+                actualCycleEndTime = 0;
+                cycleNumber += 1;
+            }
+            isGanttChartCreated = true;
+            ranking.map((item: IBlmEntity) => {
+                if (!item.isSetted) {isGanttChartCreated = false; }
+            });
+        } while (!isGanttChartCreated);
         return rankingItems;
     }
 
@@ -121,6 +138,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
                 id: i,
                 content: `Cycle ${i}`,
             });
+            groups.sort((a: IGroupsEntity, b: IGroupsEntity) => a.id - b.id);
         }
         return groups;
     }

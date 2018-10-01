@@ -10,9 +10,10 @@ export interface IBlmEntity {
     rpw: number;
     nof: number;
     noif: number;
+    isSetted: boolean;
     isExist: boolean;
     isChecked: boolean;
     isConnected: boolean;
     next: IBlmConnections;
-    previous: IBlmConnections;
+    depends: number[];
 }

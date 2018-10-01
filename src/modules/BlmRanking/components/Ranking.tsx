@@ -18,8 +18,20 @@ export class Ranking extends React.Component<IRankingProps, {}> {
         const blmAlgoritm: IBlmEntity[] = [];
         blm.map((column: IBlmEntity[]) =>
             filter(column, (o: IBlmEntity) => o.isExist)
-            .map((element: IBlmEntity) =>
-                blmAlgoritm.push(element),
+            .map((el: IBlmEntity) =>
+                blmAlgoritm.push({
+                    id: el.id,
+                    isSetted: el.isSetted,
+                    time: el.time,
+                    depends: el.depends,
+                    isChecked: el.isChecked,
+                    isConnected: el.isConnected,
+                    isExist: el.isExist,
+                    next: el.next,
+                    nof: el.nof,
+                    noif: el.noif,
+                    rpw: el.rpw,
+                }),
             ),
         );
         const ranking: IBlmEntity[] = reverse(blmAlgoritm);

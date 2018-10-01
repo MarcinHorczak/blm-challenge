@@ -29,6 +29,7 @@ export class BlmRanking extends React.Component<IBlmRankingProps, IBlmRankingSta
     }
 
     public render() {
+        const { blmMinTime } = this.props;
         const { algoritm, cycleTime } = this.state;
         // blmMinTime - validation
         const { blm } = this.props;
@@ -41,6 +42,7 @@ export class BlmRanking extends React.Component<IBlmRankingProps, IBlmRankingSta
                 <SelectCycleTime
                     getTime={(time: number) => this.setState({ cycleTime: time })}
                     time={cycleTime}
+                    blmMinTime={blmMinTime}
                 />
                 <Ranking
                     algoritm={algoritm}
