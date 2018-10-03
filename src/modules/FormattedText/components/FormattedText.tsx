@@ -10,6 +10,7 @@ interface ITProps {
     value: string;
     language: string;
 }
+
 class TComponent extends React.Component<ITProps, {}> {
     constructor(props: ITProps) {
         super(props);

@@ -12,6 +12,7 @@ import {
 } from '../../../settings';
 import { T } from '../../FormattedText';
 import { IBlmEntity } from '../model';
+import { GraphSettings } from './GraphSettings';
 
 interface IBlmGeneratorProps {
     blmModel: (blmModel: IBlmEntity[][]) => void;
@@ -26,11 +27,16 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, {}> {
     public render() {
         return(
             <Grid container direction="row">
-                <Grid container>
-                    <Button onClick={() => this.generateBlmModel()} color="primary" variant="contained">
+                <Grid container className="blm-generate-button">
+                    <Button
+                        onClick={() => this.generateBlmModel()}
+                        color="primary"
+                        variant="contained"
+                    >
                         <T value="generateNewGraph"/>
                     </Button>
                 </Grid>
+                <GraphSettings/>
             </Grid>
         );
     }

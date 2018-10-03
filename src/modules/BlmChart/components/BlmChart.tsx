@@ -1,23 +1,36 @@
 import * as React from 'react';
 
 import { isNull } from 'lodash';
+import { connect } from 'react-redux';
 import * as vis from 'vis';
-import { IBlmEntity } from '../../BlmGenerator/model';
+import { IAppState } from '../../../rootReducer';
+import { IBlmEntity, IGraphSettingsEntity } from '../../BlmGenerator/model';
 import { IEdgeEntity, INodeEntity } from '../model';
+import { graphSettingsSelector } from '../selectors';
 
 interface IBlmChartProps {
     blm: IBlmEntity[][];
+    settings: IGraphSettingsEntity;
 }
 
-export default class BlmChart extends React.Component<IBlmChartProps, {}> {
+interface IBlmChartState {
+    settings: IGraphSettingsEntity;
+    graph: vis.Network | null;
+}
+
+let network: vis.Network | null = null;
+class BlmChartComponent extends React.Component<IBlmChartProps, IBlmChartState> {
+
     public componentDidMount() {
         this.createGraph();
     }
 
-    public componentDidUpdate(prevProps: IBlmChartProps, _: any) {
-        if (prevProps.blm !== this.props.blm) {
-            this.createGraph();
-        }
+    public shouldComponentUpdate(nextProps: IBlmChartProps) {
+        return nextProps.blm !== this.props.blm;
+    }
+
+    public componentDidUpdate() {
+        this.createGraph();
     }
 
     public render() {
@@ -27,7 +40,6 @@ export default class BlmChart extends React.Component<IBlmChartProps, {}> {
     }
 
     private createGraph() {
-        let network: vis.Network | null = null;
         const nodes: INodeEntity[] = [];
         const edgesArray: IEdgeEntity[] = [];
 
@@ -64,17 +76,20 @@ export default class BlmChart extends React.Component<IBlmChartProps, {}> {
         };
         const options = {
             interaction: {
-                navigationButtons: false,
+                navigationButtons: true,
                 keyboard: true,
                 hover: true,
-                dragView: false,
-                zoomView: false,
+                dragView: true,
+                zoomView: true,
             },
             edges: { arrows: 'to' },
             height: '300',
             width: '100%',
         };
-        if (!isNull(container)) {network = new vis.Network(container, data, options); }
+        if (!isNull(container)) {
+            network = new vis.Network(container, data, options);
+
+        }
         if (!isNull(network)) {
             network.on('select', (params: any) => {
                 const dupa = document.getElementById('selection');
@@ -85,3 +100,10 @@ export default class BlmChart extends React.Component<IBlmChartProps, {}> {
         }
     }
 }
+
+export const BlmChart = connect(
+    (state: IAppState, _: any): any => ({
+        settings: graphSettingsSelector(state),
+    }),
+    null,
+)(BlmChartComponent);

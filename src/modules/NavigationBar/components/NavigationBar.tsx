@@ -10,7 +10,7 @@ import { languageAction } from '../actions';
 import { NavBarItem } from './NavBarItem';
 
 interface INavigationBarProps {
-    fetchLanguage: (lang: string) => AnyAction;
+    language: (lang: string) => AnyAction;
 }
 
 interface INavigationBarState {
@@ -77,7 +77,7 @@ class NavigationBarContent extends React.Component<INavigationBarProps, INavigat
 
     private setLanguage(lang: string) {
         localStorage.setItem('lang', lang);
-        this.props.fetchLanguage(lang);
+        this.props.language(lang);
     }
 
     private toggleDrawer = () => {
@@ -87,5 +87,5 @@ class NavigationBarContent extends React.Component<INavigationBarProps, INavigat
 
 export const NavigationBar = connect(
     null,
-    {fetchLanguage: (lang: string): any => languageAction( lang )},
+    {language: (lang: string): any => languageAction( lang )},
 )(NavigationBarContent);

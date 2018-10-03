@@ -61,7 +61,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
             },
             groupOrder: (a: any, b: any) => a.id - b.id,
             moveable: true,
-            zoomeable: true,
+            zoomable: true,
         };
 
         if (!isNull(container)) {

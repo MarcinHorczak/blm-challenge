@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { Grid, Typography } from '@material-ui/core';
-import BlmChart from '../modules/BlmChart/components/BlmChart';
+import { BlmChart } from '../modules/BlmChart';
 import { BlmGenerator } from '../modules/BlmGenerator';
 import { IBlmEntity } from '../modules/BlmGenerator/model';
 import { BlmRanking } from '../modules/BlmRanking';
@@ -24,7 +24,7 @@ export class Example extends React.Component<{}, IExampleState> {
     public render() {
         const { blmModel, blmMinTime } = this.state;
         return (
-            <Grid direction="row" className="blm">
+            <Grid className="blm">
                 <Grid item container>
                     <Typography variant="title">
                         <T value="blmExamplesGenerator"/>

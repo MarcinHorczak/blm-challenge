@@ -17,3 +17,9 @@ export interface IBlmEntity {
     next: IBlmConnections;
     depends: number[];
 }
+
+export interface IGraphSettingsEntity {
+    dragView: boolean;
+    zoomView: boolean;
+    navigationButtons: boolean;
+}
