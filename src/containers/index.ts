@@ -1,3 +1,3 @@
 export { App } from './App';
 export { NotFound } from './NotFound';
-export { Example } from './Example';
+export { Panel } from './Panel';

@@ -1,14 +1,6 @@
-@import './constants';
 @import './graph';
-@import './ranking';
-@import './navigation-bar';
-@import './footer';
 
-html, body {
+body {
     margin: 0;
     padding: 0;
-}
-
-.app-wrapper {
-    min-height: 100vh;
 }

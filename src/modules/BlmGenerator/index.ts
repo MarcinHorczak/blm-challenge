@@ -1,3 +1,3 @@
 export { BlmGenerator } from './components/BlmGenerator';
-export { GraphSettings } from './components/GraphSettings';
-export { GraphSettingsItem } from './components/GraphSettingsItem';
+export { GraphColumn } from './components/GraphColumn';
+export { GraphElement } from './components/GraphElement';

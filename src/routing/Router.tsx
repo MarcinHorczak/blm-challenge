@@ -1,32 +1,20 @@
 import * as React from 'react';
 import {
-    BrowserRouter,
-    Redirect,
-    Route,
-    Switch,
+  BrowserRouter,
+  Route,
 } from 'react-router-dom';
 
-import { App, Example, NotFound } from '../containers/index';
+import { App, NotFound, Panel } from '../containers/index';
 
 export class Router extends React.Component {
-    public render() {
-        return (
-        <BrowserRouter>
-            <Switch>
-                <Route path="/notFound" component={NotFound} />
-                <Route path="/" render={() => {
-                    return (
-                    <App>
-                        <Switch>
-                            <Route exact path="/" component={Example} />
-                            <Route exact path="/examples" component={Example} />
-                            <Redirect to="/notFound"/>
-                        </Switch>
-                    </App>
-                    ); }
-                }/>
-            </Switch>
-        </BrowserRouter>
-        );
-    }
+  public render() {
+    return (
+      <BrowserRouter>
+        <App>
+          <Route exact path="/" component={Panel} />
+          <Route path="/notFound" component={NotFound} />
+        </App>
+      </BrowserRouter>
+    );
+  }
 }
