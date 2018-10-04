@@ -11,8 +11,9 @@ import {
     numberOfMachines,
 } from '../../../settings';
 import { T } from '../../FormattedText';
+import { SettingsMenu } from '../../SettingsMenu';
+import { blmGraphOptions } from '../../SettingsMenu/settings';
 import { IBlmEntity } from '../model';
-import { GraphSettings } from './GraphSettings';
 
 interface IBlmGeneratorProps {
     blmModel: (blmModel: IBlmEntity[][]) => void;
@@ -36,7 +37,7 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, {}> {
                         <T value="generateNewGraph"/>
                     </Button>
                 </Grid>
-                <GraphSettings/>
+                <SettingsMenu menuSettings={blmGraphOptions}/>
             </Grid>
         );
     }

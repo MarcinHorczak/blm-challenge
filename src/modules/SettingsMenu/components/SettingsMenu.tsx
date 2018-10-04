@@ -7,21 +7,23 @@ import { AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { IAppState } from '../../../rootReducer';
 import { graphSettingsSelector } from '../../BlmChart/selectors';
-import { graphSettingsAction } from '../actions';
-import { IGraphSettingsEntity } from '../model';
-import { GraphSettingsItem } from './GraphSettingsItem';
+import { graphSettingsAction } from '../../BlmGenerator/actions';
+import { IGraphSettingsEntity } from '../../BlmGenerator/model';
+import { IMenuOptionsEntity } from '../model';
+import { SettingsItem } from './SettingsItem';
 
-interface IGraphSettingsProps {
+interface ISettingsMenuProps {
     setSettings: (set: IGraphSettingsEntity) => ThunkAction<void, IAppState, never, AnyAction>;
     settings: IGraphSettingsEntity;
+    menuSettings: IMenuOptionsEntity[];
 }
 
-interface IGraphSettingsState {
+interface ISettingsMenuState {
     anchorEl: any;
 }
 
-class GraphSettingsComponent extends React.Component<IGraphSettingsProps, IGraphSettingsState> {
-    constructor(props: IGraphSettingsProps) {
+class SettingsMenuComponent extends React.Component<ISettingsMenuProps, ISettingsMenuState> {
+    constructor(props: ISettingsMenuProps) {
         super(props);
         this.state = {
             anchorEl: undefined,
@@ -29,8 +31,8 @@ class GraphSettingsComponent extends React.Component<IGraphSettingsProps, IGraph
     }
 
     public render() {
+        const { menuSettings, settings } = this.props;
         const { anchorEl } = this.state;
-        const { settings } = this.props;
         return(
             <Grid>
                 <IconButton
@@ -43,43 +45,34 @@ class GraphSettingsComponent extends React.Component<IGraphSettingsProps, IGraph
                     open={Boolean(anchorEl)}
                     onClose={() => this.setState({ anchorEl: undefined })}
                 >
-                    <GraphSettingsItem
-                        name="Drag View"
-                        option="dragView"
-                        settings={settings}
-                        updateSettings={(option: any) => this.updateSettings(option)}
-                    />
-                    <GraphSettingsItem
-                        name="Navigation Buttons"
-                        option="navigationButtons"
-                        settings={settings}
-                        updateSettings={(option: any) => this.updateSettings(option)}
-                    />
-                    <GraphSettingsItem
-                        name="Zoom View"
-                        option="zoomView"
-                        settings={settings}
-                        updateSettings={(option: any) => this.updateSettings(option)}
-                    />
+                    {
+                        menuSettings.map((o: IMenuOptionsEntity) => {
+                            return (
+                            <SettingsItem
+                                name={o.name}
+                                option={o.option}
+                                settings={settings}
+                                updateSettings={(option: any) => this.updateSettings(option)}
+                            />
+                        ); })
+                    }
                 </Menu>
             </Grid>
         );
     }
 
     private updateSettings(set: keyof IGraphSettingsEntity) {
-
         const settings = {...this.props.settings};
         settings[set] = !settings[set];
         this.props.setSettings(settings);
-
     }
 }
 
-export const GraphSettings = connect(
+export const SettingsMenu = connect(
     (state: IAppState) => ({
         settings: graphSettingsSelector(state),
     }),
     {
         setSettings: graphSettingsAction,
     },
-)(GraphSettingsComponent);
+)(SettingsMenuComponent);

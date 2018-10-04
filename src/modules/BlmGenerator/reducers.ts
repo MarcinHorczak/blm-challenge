@@ -1,8 +1,8 @@
 import { isNull } from 'lodash';
 import { AnyAction } from 'redux';
-import { SET_SETTINGS } from '../BlmGenerator/actionTypes';
-import { graphDefaultSettings } from '../BlmGenerator/constants';
-import { IGraphSettingsEntity } from '../BlmGenerator/model';
+import { SET_SETTINGS } from './actionTypes';
+import { graphDefaultSettings } from './constants';
+import { IGraphSettingsEntity } from './model';
 
 export const GRAPH_SETTINGS_KEY = 'graphSettings';
 const getDefaultSettings = () => {

@@ -1,7 +1,7 @@
 import { combineReducers, Reducer } from 'redux';
-import { graphSettingsReducer } from './modules/BlmChart/reducers';
 
 import { IGraphSettingsEntity } from './modules/BlmGenerator/model';
+import { graphSettingsReducer } from './modules/BlmGenerator/reducers';
 import { ILanguageState } from './modules/NavigationBar/model';
 import { languageReducer } from './modules/NavigationBar/reducer';
 

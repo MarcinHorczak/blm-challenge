@@ -20,17 +20,19 @@ interface IBlmChartState {
 
 let network: vis.Network | null = null;
 class BlmChartComponent extends React.Component<IBlmChartProps, IBlmChartState> {
-
     public componentDidMount() {
-        this.createGraph();
+        const options = this.getOptions(this.props.settings);
+        this.createGraph(options);
     }
 
-    public shouldComponentUpdate(nextProps: IBlmChartProps) {
-        return nextProps.blm !== this.props.blm;
-    }
-
-    public componentDidUpdate() {
-        this.createGraph();
+    public componentDidUpdate(prevProps: IBlmChartProps, _: any) {
+        const options = this.getOptions(this.props.settings);
+        if (prevProps.blm !== this.props.blm) {
+            this.createGraph(options);
+        }
+        if (prevProps.settings !== this.props.settings) {
+            this.updateSettings(options);
+        }
     }
 
     public render() {
@@ -39,7 +41,7 @@ class BlmChartComponent extends React.Component<IBlmChartProps, IBlmChartState> 
         );
     }
 
-    private createGraph() {
+    private createGraph(options: any) {
         const nodes: INodeEntity[] = [];
         const edgesArray: IEdgeEntity[] = [];
 
@@ -74,21 +76,8 @@ class BlmChartComponent extends React.Component<IBlmChartProps, IBlmChartState> 
             nodes,
             edges,
         };
-        const options = {
-            interaction: {
-                navigationButtons: true,
-                keyboard: true,
-                hover: true,
-                dragView: true,
-                zoomView: true,
-            },
-            edges: { arrows: 'to' },
-            height: '300',
-            width: '100%',
-        };
         if (!isNull(container)) {
             network = new vis.Network(container, data, options);
-
         }
         if (!isNull(network)) {
             network.on('select', (params: any) => {
@@ -98,6 +87,27 @@ class BlmChartComponent extends React.Component<IBlmChartProps, IBlmChartState> 
                 }
             });
         }
+    }
+
+    private updateSettings(options: any) {
+        if (!isNull(network)) {
+            network.setOptions(options);
+        }
+    }
+
+    private getOptions(settings: IGraphSettingsEntity) {
+        return {
+            interaction: {
+                navigationButtons: settings.navigationButtons,
+                keyboard: true,
+                hover: true,
+                dragView: settings.dragView,
+                zoomView: settings.zoomView,
+            },
+            edges: { arrows: 'to' },
+            height: '300',
+            width: '100%',
+        };
     }
 }
 

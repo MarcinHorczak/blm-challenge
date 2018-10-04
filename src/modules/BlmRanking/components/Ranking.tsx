@@ -1,6 +1,7 @@
 import * as React from 'react';
 
-import { Grid, Toolbar, Typography } from '@material-ui/core';
+import { Grid, IconButton, Menu, Toolbar, Typography } from '@material-ui/core';
+import { Settings } from '@material-ui/icons';
 import { filter, join, reverse, sortBy } from 'lodash';
 import { GanttChart } from '../../BlmGanttChart';
 import { IBlmEntity } from '../../BlmGenerator/model';
@@ -12,9 +13,21 @@ interface IRankingProps {
     blmMinTime: number;
 }
 
-export class Ranking extends React.Component<IRankingProps, {}> {
+interface IRankingState {
+    anchorEl: any;
+}
+
+export class Ranking extends React.Component<IRankingProps, IRankingState> {
+    constructor(props: IRankingProps) {
+        super(props);
+        this.state = {
+            anchorEl: undefined,
+        };
+    }
+
     public render() {
         const { algoritm, blm, blmMinTime } = this.props;
+        const { anchorEl } = this.state;
         const blmAlgoritm: IBlmEntity[] = [];
         blm.map((column: IBlmEntity[]) =>
             filter(column, (o: IBlmEntity) => o.isExist)
@@ -62,6 +75,17 @@ export class Ranking extends React.Component<IRankingProps, {}> {
                             </Toolbar>
                         </Grid>
                         <Grid container item>
+                            <IconButton
+                                onClick={(event: any) => this.setState({ anchorEl: event.currentTarget })}
+                            >
+                                <Settings color="primary"/>
+                            </IconButton>
+                            <Menu
+                                anchorEl={anchorEl}
+                                open={Boolean(anchorEl)}
+                                onClose={() => this.setState({ anchorEl: undefined })}
+                            >
+                            </Menu>
                             <GanttChart
                                 blmMinTime={blmMinTime}
                                 ranking={
