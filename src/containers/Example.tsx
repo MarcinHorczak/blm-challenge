@@ -9,7 +9,6 @@ import { T } from '../modules/FormattedText';
 
 interface IExampleState {
     blmModel: IBlmEntity[][];
-    blmMinTime: number;
 }
 
 export class Example extends React.Component<{}, IExampleState> {
@@ -17,12 +16,11 @@ export class Example extends React.Component<{}, IExampleState> {
         super(props);
         this.state = {
             blmModel: [],
-            blmMinTime: 0,
         };
     }
 
     public render() {
-        const { blmModel, blmMinTime } = this.state;
+        const { blmModel } = this.state;
         return (
             <Grid className="blm">
                 <Grid item container>
@@ -32,10 +30,9 @@ export class Example extends React.Component<{}, IExampleState> {
                 </Grid>
                 <BlmGenerator
                     blmModel={(blm: IBlmEntity[][]) => this.setState({ blmModel: blm })}
-                    blmElementMinTime={(time: number) => this.setState({ blmMinTime: time })}
                 />
                 <BlmChart blm={blmModel}/>
-                <BlmRanking blm={blmModel} blmMinTime={blmMinTime}/>
+                <BlmRanking blm={blmModel}/>
             </Grid>
         );
     }

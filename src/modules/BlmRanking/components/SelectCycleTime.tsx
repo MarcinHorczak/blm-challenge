@@ -1,11 +1,11 @@
 import * as React from 'react';
 
 import { Grid, TextField } from '@material-ui/core';
+import { maxTimeRange } from '../../../settings';
 
 interface ISelectCycleTimeProps {
     getTime: (time: number) => void;
     time: number;
-    blmMinTime: number;
 }
 
 interface ISelectCycleTimeState {
@@ -45,9 +45,8 @@ export class SelectCycleTime extends React.Component<ISelectCycleTimeProps, ISel
     }
 
     private onChange(value: any) {
-        const { blmMinTime } = this.props;
-        if (value < blmMinTime) {
-            this.setState({ isError: true, errorMessage: `Value cannot be lower then ${blmMinTime}` });
+        if (value < maxTimeRange - 1) {
+            this.setState({ isError: true, errorMessage: `Value cannot be lower then ${maxTimeRange}` });
         } else {
             this.props.getTime(value);
             this.setState({ isError: false, errorMessage: '' });

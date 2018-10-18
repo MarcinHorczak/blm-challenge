@@ -9,7 +9,6 @@ import { SelectCycleTime } from './SelectCycleTime';
 
 interface IBlmRankingProps {
     blm: IBlmEntity[][];
-    blmMinTime: number;
 }
 
 interface IBlmRankingState {
@@ -29,9 +28,7 @@ export class BlmRanking extends React.Component<IBlmRankingProps, IBlmRankingSta
     }
 
     public render() {
-        const { blmMinTime } = this.props;
         const { algoritm, cycleTime } = this.state;
-        // blmMinTime - validation
         const { blm } = this.props;
         return(
             <Grid item container className="blm-ranking">
@@ -42,7 +39,6 @@ export class BlmRanking extends React.Component<IBlmRankingProps, IBlmRankingSta
                 <SelectCycleTime
                     getTime={(time: number) => this.setState({ cycleTime: time })}
                     time={cycleTime}
-                    blmMinTime={blmMinTime}
                 />
                 <Ranking
                     algoritm={algoritm}

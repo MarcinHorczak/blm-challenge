@@ -1,7 +1,10 @@
-export const numberOfMachines = 30;
-export const minLineLength = 10;
+// export const numberOfMachines = 30;
+export const numberOfMachines = 5;
+// export const minLineLength = 10;
+export const minLineLength = 2;
 export const maxLineLength = 20;
-export const lineHeight = 5;
+// export const lineHeight = 5;
+export const lineHeight = 2;
 export const maxBlmElementSize = 80;
 export const minBlmElementSize = 60;
 export const minTimeRange = 1;

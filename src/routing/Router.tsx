@@ -6,7 +6,7 @@ import {
     Switch,
 } from 'react-router-dom';
 
-import { App, Example, NotFound } from '../containers/index';
+import { App, Example, NotFound, Practice } from '../containers/index';
 
 export class Router extends React.Component {
     public render() {
@@ -20,6 +20,7 @@ export class Router extends React.Component {
                         <Switch>
                             <Route exact path="/" component={Example} />
                             <Route exact path="/examples" component={Example} />
+                            <Route exact path="/practice" component={Practice} />
                             <Redirect to="/notFound"/>
                         </Switch>
                     </App>
