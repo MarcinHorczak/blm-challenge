@@ -51,8 +51,8 @@
     "reselect": "^3.0.1"
   },
   "scripts": {
-    "build": "./node_modules/.bin/webpack",
-    "dev": "./node_modules/.bin/webpack-dev-server --env.bundleOutputDir='./build'",
-    "lint": "./node_modules/.bin/tslint 'src/**/*.ts{,x}'"
+    "build": "webpack --env.bundleOutputDir=build",
+    "dev": "webpack-dev-server --env.bundleOutputDir='./build'",
+    "lint": "tslint 'src/**/*.ts{,x}'"
   }
 }

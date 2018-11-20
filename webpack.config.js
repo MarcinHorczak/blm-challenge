@@ -5,7 +5,6 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = (env = {}) => {
-
     const isDevBuild = !env.production;
     const bundleOutputDir = env.bundleOutputDir;
     const templateInjectBefore  = env.templateInjectBefore;
@@ -54,11 +53,11 @@ module.exports = (env = {}) => {
         },
         plugins: 
             [
-                 new MiniCssExtractPlugin({
+                new MiniCssExtractPlugin({
                     filename: isDevBuild ? '[name].css' : '[name].[hash].css',
                     chunkFilename: isDevBuild ? '[id].css' : '[id].[hash].css',
-                  }),
-                  new HtmlWebpackPlugin({
+                }),
+                new HtmlWebpackPlugin({
                     filename: templateFileName,
                     template: 'index.html',
                     favicon: 'favicon.ico',

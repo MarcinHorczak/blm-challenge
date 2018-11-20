@@ -6,6 +6,7 @@ import { BlmChart } from '../modules/BlmChart';
 import { BlmGenerator } from '../modules/BlmGenerator';
 import { IBlmEntity } from '../modules/BlmGenerator/model';
 import { SelectAlgoritm, SelectCycleTime } from '../modules/BlmRanking';
+import { EditableRanking } from '../modules/EditableRanking';
 import { EditableTable } from '../modules/EditableTable';
 import { IWagEntity } from '../modules/EditableTable/model';
 import { T } from '../modules/FormattedText';
@@ -18,7 +19,8 @@ interface IPracticeState {
     cycleTime: number;
     wags: IWagEntity[];
     validations: string[];
-    isChanged: boolean;
+    isWagTableFull: boolean;
+    update: boolean;
 }
 
 export class Practice extends React.Component<{}, IPracticeState> {
@@ -38,19 +40,20 @@ export class Practice extends React.Component<{}, IPracticeState> {
             cycleTime: 12,
             wags,
             validations: [],
-            isChanged: false,
+            isWagTableFull: false,
+            update: false,
         };
     }
 
     public componentDidUpdate() {
-        if (this.state.isChanged) {
+        if (this.state.update && this.state.isWagTableFull) {
             this.validate();
-            this.setState({ isChanged: false });
+            this.setState({ update: false });
         }
     }
 
     public render() {
-        const { blmModel, algoritm, cycleTime, validations } = this.state;
+        const { blmModel, algoritm, cycleTime, validations, isWagTableFull } = this.state;
         return (
             <Grid className="blm">
                 <Grid item container>
@@ -65,19 +68,28 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 <BlmChart blm={blmModel}/>
                 <SelectAlgoritm
                     algoritm={algoritm}
-                    setAlgoritm={(method: string) => this.setState({ algoritm: method })}
+                    setAlgoritm={(method: string) => this.setState({ algoritm: method, update: true })}
                 />
                 <SelectCycleTime
                     getTime={(time: number) => this.setState({ cycleTime: time })}
                     time={cycleTime}
                 />
                 <EditableTable
-                    setWags={(wags: IWagEntity[], isChanged: boolean) => this.setState({ isChanged , wags })}
+                    setWags={(wags: IWagEntity[], isFull: boolean) =>
+                        this.setState({ wags, isWagTableFull: isFull, update: true })
+                    }
                     wag={this.state.wags}
+                    isFull={this.state.isWagTableFull}
                 />
                 <Validation
                     validation={validations}
                 />
+                <EditableRanking
+                    algoritm={algoritm}
+                    blmModel={blmModel}
+                    visible={true ? algoritm !== '' && isWagTableFull : false}
+                />
+                {/* <WorkingStation/> */}
             </Grid>
         );
     }
@@ -93,9 +105,10 @@ export class Practice extends React.Component<{}, IPracticeState> {
     }
 
     private checkSolution(algoritm: string) {
-        const validations: string[] = [];
+        let validations: string[] = [];
         const wags = {...this.state.wags};
         const table: number[] = [];
+        let isError: boolean = false;
         this.state.blmModel.map((row: IBlmEntity[]) => {
             row.map((el: IBlmEntity) => {
                 if (el.isExist) {
@@ -104,11 +117,17 @@ export class Practice extends React.Component<{}, IPracticeState> {
                     if (this.state.wags[el.id - 1].wag !== get(el, algoritm.toLocaleLowerCase())) {
                         table.push(el.id);
                         wags[el.id - 1].isError = true;
+                        isError = true;
                     }
                 }
             });
         });
+        validations = [];
         validations.push(`Discorrect ${algoritm} wag: ${table.join(', ')}`);
+        if (!isError) {
+            validations = [];
+            validations.push('Correct!');
+        }
         this.setState({ validations, wags });
     }
 }

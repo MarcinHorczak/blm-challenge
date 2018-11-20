@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import { Table, TableBody, TableCell, TableRow } from '@material-ui/core';
 import { isNull } from 'lodash';
 import * as vis from 'vis';
 import { IBlmEntity } from '../../BlmGenerator/model';
@@ -12,11 +13,24 @@ interface IGanttChartProps {
 }
 
 interface IGanttChartState {
-    timeline: vis.Timeline;
+    timeline: vis.Timeline | undefined;
+    LE: number;
+    SL: number;
+    T: number;
 }
 
 let gantt: vis.Timeline;
 export class GanttChart extends React.Component<IGanttChartProps, IGanttChartState> {
+    constructor(props: IGanttChartProps) {
+        super(props);
+        this.state = {
+            LE: 0,
+            SL: 0,
+            T: 0,
+            timeline: undefined,
+        };
+    }
+
     public componentDidMount() {
         this.createGraph();
     }
@@ -34,7 +48,25 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
 
     public render() {
         return (
-            <div id="visualization" style={{width: '100%'}}/>
+            <>
+                <div id="visualization" style={{width: '100%'}}/>
+                <Table padding="checkbox">
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>Iindicator:</TableCell>
+                            <TableCell>LE</TableCell>
+                            <TableCell>SL</TableCell>
+                            <TableCell>T</TableCell>
+                        </TableRow>
+                        <TableRow>
+                            <TableCell>Value:</TableCell>
+                            <TableCell>{this.state.LE} %</TableCell>
+                            <TableCell>{this.state.SL}</TableCell>
+                            <TableCell>{this.state.T}</TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </>
         );
     }
 
@@ -67,6 +99,11 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
     }
 
     private setItems(): IItemsEntity[] {
+        // indicators variables
+        let sumSTi = 0;
+        let sumSL = 0;
+
+        // gantt chart variables
         const { ranking } = this.props;
         const rankingItems: IItemsEntity[] = [];
         let actualCycleEndTime: number = 0;
@@ -103,6 +140,8 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
                 }
             }
             if (nextCycle) {
+                sumSTi += actualCycleEndTime;
+                sumSL += Math.pow((this.props.maxTime - actualCycleEndTime), 2);
                 actualCycleEndTime = 0;
                 cycleNumber += 1;
             }
@@ -111,6 +150,11 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
                 if (!item.isSetted) {isGanttChartCreated = false; }
             });
         } while (!isGanttChartCreated);
+        this.setState({
+            LE: Math.round((sumSTi / ((cycleNumber - 1) * this.props.maxTime)) * 10000) / 100,
+            SL: Math.round(Math.sqrt(sumSL) * 100) / 100,
+            T: this.props.maxTime * (cycleNumber - 1),
+        });
         return rankingItems;
     }
 

@@ -2,21 +2,18 @@ import * as React from 'react';
 
 import { Button, Grid, Table, TableBody, TableCell, TableRow, Typography } from '@material-ui/core';
 import { numberOfMachines } from '../../../settings';
-import { Validation } from '../../Validation';
 import { IWagEntity } from '../model';
 
 interface IEditableTableProps {
-    setWags: (wags: IWagEntity[], isSubmited: boolean) => void;
+    setWags: (wags: IWagEntity[], isFull: boolean) => void;
     wag: IWagEntity[];
+    isFull: boolean;
 }
 
 interface IEditableTableState {
     current: number;
     open: boolean;
     currentValue: number;
-    isError: boolean;
-    isSubmited: boolean;
-    validations: string[];
 }
 
 export class EditableTable extends React.Component<IEditableTableProps, IEditableTableState> {
@@ -26,15 +23,12 @@ export class EditableTable extends React.Component<IEditableTableProps, IEditabl
             current: -1,
             open: false,
             currentValue: 0,
-            isError: false,
-            isSubmited: false,
-            validations: [],
         };
     }
 
     public render() {
-        const { wag } = this.props;
-        const { open, isError, isSubmited, validations } = this.state;
+        const { wag, isFull } = this.props;
+        const { open } = this.state;
         return(
             <Grid container>
                 <Grid container item style={{overflow: '-webkit-paged-x'}}>
@@ -63,7 +57,7 @@ export class EditableTable extends React.Component<IEditableTableProps, IEditabl
                 </Grid>
                 <Grid container>
                     {open
-                        ? <Grid container>
+                        && <Grid container>
                             <Grid container>
                                 <Typography variant="title">
                                     Select wag for order: {this.state.current}
@@ -132,7 +126,9 @@ export class EditableTable extends React.Component<IEditableTableProps, IEditabl
                                 </Grid>
                             </Grid>
                         </Grid>
-                        : <Grid container>
+                    }
+                    {!open && isFull &&
+                        <Grid container>
                             <Button
                                 color="primary"
                                 fullWidth
@@ -142,16 +138,6 @@ export class EditableTable extends React.Component<IEditableTableProps, IEditabl
                                 Wags are created
                             </Button>
                         </Grid>
-                    }
-                    {(isError && isSubmited)
-                        ? <Grid container>
-                            <Typography>
-                                <Validation
-                                    validation={validations}
-                                />
-                            </Typography>
-                        </Grid>
-                        : null
                     }
                 </Grid>
             </Grid>
@@ -164,20 +150,25 @@ export class EditableTable extends React.Component<IEditableTableProps, IEditabl
         if (wag[pos].wag !== '_') {
             currentValue = wag[pos].wag;
         }
-        this.setState({ current: pos, open: true, currentValue, isSubmited: false });
+        this.setState({ current: pos, open: true, currentValue });
     }
 
     private saveWag() {
         const wag = {...this.props.wag};
+        let isFull = true;
         wag[this.state.current].wag = this.state.currentValue;
-        this.props.setWags(wag, false);
-        this.setState({ open: false, isSubmited: false });
+        for (let i = 0; i < numberOfMachines; i++) {
+            if (wag[i].wag === '_') {
+                isFull = false;
+            }
+        }
+        this.props.setWags(wag, isFull);
+        this.setState({ open: false });
     }
 
     private checkWags() {
         const wag = {...this.props.wag};
         const table = [];
-        const validations = [];
         let isError = false;
         for (let i = 0; i < numberOfMachines; i++) {
             if (wag[i].wag === '_') {
@@ -188,8 +179,6 @@ export class EditableTable extends React.Component<IEditableTableProps, IEditabl
         if (!isError) {
             this.props.setWags(this.props.wag, true);
         }
-        validations.push(`Please set wag to order(s): ${table.join(', ')}`);
-        this.setState({ isError, isSubmited: true, validations });
     }
 
     private tableContent() {
@@ -197,7 +186,6 @@ export class EditableTable extends React.Component<IEditableTableProps, IEditabl
         for (let i = 0; i < numberOfMachines; i++) {
             table.push(i);
         }
-
         return table;
     }
 }
