@@ -17,6 +17,7 @@ interface IGanttChartState {
     LE: number;
     SL: number;
     T: number;
+    TAlt: number;
 }
 
 let gantt: vis.Timeline;
@@ -27,6 +28,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
             LE: 0,
             SL: 0,
             T: 0,
+            TAlt: 0,
             timeline: undefined,
         };
     }
@@ -62,7 +64,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
                             <TableCell>Value:</TableCell>
                             <TableCell>{this.state.LE} %</TableCell>
                             <TableCell>{this.state.SL}</TableCell>
-                            <TableCell>{this.state.T}</TableCell>
+                            <TableCell>{this.state.T} or {this.state.TAlt}</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
@@ -102,6 +104,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
         // indicators variables
         let sumSTi = 0;
         let sumSL = 0;
+        let lastT = 0;
 
         // gantt chart variables
         const { ranking } = this.props;
@@ -142,6 +145,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
             if (nextCycle) {
                 sumSTi += actualCycleEndTime;
                 sumSL += Math.pow((this.props.maxTime - actualCycleEndTime), 2);
+                lastT = actualCycleEndTime;
                 actualCycleEndTime = 0;
                 cycleNumber += 1;
             }
@@ -154,6 +158,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
             LE: Math.round((sumSTi / ((cycleNumber - 1) * this.props.maxTime)) * 10000) / 100,
             SL: Math.round(Math.sqrt(sumSL) * 100) / 100,
             T: this.props.maxTime * (cycleNumber - 1),
+            TAlt: (this.props.maxTime * (cycleNumber - 2)) + lastT,
         });
         return rankingItems;
     }

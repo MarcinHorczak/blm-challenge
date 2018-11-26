@@ -6,6 +6,7 @@ import { maxTimeRange } from '../../../settings';
 interface ISelectCycleTimeProps {
     getTime: (time: number) => void;
     time: number;
+    hidden: boolean;
 }
 
 interface ISelectCycleTimeState {
@@ -23,23 +24,27 @@ export class SelectCycleTime extends React.Component<ISelectCycleTimeProps, ISel
     }
 
     public render() {
-        const { time } = this.props;
+        const { time, hidden } = this.props;
         const { isError, errorMessage } = this.state;
         return(
             <Grid container>
-                <TextField
-                    id="standard-number"
-                    label="Series"
-                    value={time}
-                    onChange={(event: any) => this.onChange(event.target.value)}
-                    type="number"
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
-                    margin="normal"
-                    error={isError}
-                    helperText={errorMessage}
-                />
+                {
+                    hidden
+                    ? null
+                    : <TextField
+                        id="standard-number"
+                        label="Series"
+                        value={time}
+                        onChange={(event: any) => this.onChange(event.target.value)}
+                        type="number"
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        margin="normal"
+                        error={isError}
+                        helperText={errorMessage}
+                    />
+                }
             </Grid>
         );
     }
