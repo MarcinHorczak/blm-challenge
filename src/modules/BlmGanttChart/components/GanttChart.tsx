@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableRow } from '@material-ui/core';
 import { isNull } from 'lodash';
 import * as vis from 'vis';
 import { IBlmEntity } from '../../BlmGenerator/model';
+import { setOptions } from '../functions';
 import { IGroupsEntity, IItemsEntity } from '../model';
 
 interface IGanttChartProps {
@@ -78,7 +79,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
         const settedItems = this.setItems();
         const items = new vis.DataSet(settedItems);
         const groups = this.setGroups(settedItems);
-        const options = this.setOptions(this.props.maxTime);
+        const options = setOptions(this.props.maxTime);
 
         if (!isNull(container)) {
             gantt = new vis.Timeline(container, items, groups, options);
@@ -90,7 +91,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
         const settedItems = this.setItems();
         const items = new vis.DataSet(settedItems);
         const groups = this.setGroups(settedItems);
-        const options = this.setOptions(this.props.maxTime);
+        const options = setOptions(this.props.maxTime);
 
         timeline.setData({
             groups,
@@ -177,34 +178,5 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
             groups.sort((a: IGroupsEntity, b: IGroupsEntity) => a.id - b.id);
         }
         return groups;
-    }
-
-    private setOptions(maxTime: number) {
-        const time: number = Number(maxTime) + 3;
-        return {
-            format: {
-                minorLabels: {
-                  millisecond: 'SSS',
-                },
-                majorLabels: {
-                  millisecond: '',
-                },
-            },
-            min: 0,
-            max: time,
-            start: 0,
-            end: time,
-            multiselect: true,
-            stack: false,
-            editable: {
-                updateTime: false,
-                updateGroup: false,
-                remove: false,
-                overrideItems: false,
-            },
-            groupOrder: (a: any, b: any) => a.id - b.id,
-            moveable: false,
-            zoomable: false,
-        };
     }
 }

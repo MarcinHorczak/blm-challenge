@@ -22,8 +22,6 @@ interface IPracticeState {
     validations: string[];
     isWagTableFull: boolean;
     update: boolean;
-    createdRanking: string;
-    createdGantt: vis.Timeline | undefined;
 }
 
 export class Practice extends React.Component<{}, IPracticeState> {
@@ -47,8 +45,6 @@ export class Practice extends React.Component<{}, IPracticeState> {
             validations: [],
             isWagTableFull: false,
             update: false,
-            createdRanking: '',
-            createdGantt: undefined,
         };
     }
 
@@ -91,7 +87,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
     }
 
     public render() {
-        const { blmModel, algoritm, cycleTime, ranking, isWagTableFull, createdGantt } = this.state;
+        const { blmModel, algoritm, cycleTime, ranking, isWagTableFull } = this.state;
         return (
             <Grid className="blm">
                 <Grid item container>
@@ -127,8 +123,8 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 />
                 <EditableGanttChart
                     hidden={!isWagTableFull}
-                    createdGantt={createdGantt}
-                    setGantt={(gantt: vis.Timeline | undefined) => this.setState({ createdGantt: gantt })}
+                    // hidden={false}
+                    ranking={ranking}
                 />
             </Grid>
         );
