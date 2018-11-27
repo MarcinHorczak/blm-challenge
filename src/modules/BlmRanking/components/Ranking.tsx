@@ -1,9 +1,10 @@
 import * as React from 'react';
 
-import { Grid, Toolbar, Typography } from '@material-ui/core';
-import { filter, join, reverse, sortBy } from 'lodash';
+import { Grid } from '@material-ui/core';
+import { filter, reverse, sortBy } from 'lodash';
 import { GanttChart } from '../../BlmGanttChart';
 import { IBlmEntity } from '../../BlmGenerator/model';
+import { SortedStringRanking } from '../../SortedRankingInString';
 import { RankingTable } from './RankingTable';
 
 interface IRankingProps {
@@ -45,12 +46,12 @@ export class Ranking extends React.Component<IRankingProps, IRankingState> {
                 }),
             ),
         );
-        const ranking: IBlmEntity[] = reverse(blmAlgoritm);
+
         const wet: IBlmEntity[] = reverse(sortBy(blmAlgoritm, ['time']));
         const rpw: IBlmEntity[] = reverse(sortBy(blmAlgoritm, ['rpw']));
         const nof: IBlmEntity[] = reverse(sortBy(blmAlgoritm, ['nof']));
         const noif: IBlmEntity[] = reverse(sortBy(blmAlgoritm, ['noif']));
-        reverse(ranking);
+        const ranking: IBlmEntity[] = blmAlgoritm;
         return(
             <Grid container>
                 {algoritm === ''
@@ -60,18 +61,16 @@ export class Ranking extends React.Component<IRankingProps, IRankingState> {
                             ranking={ranking}
                             algoritm={algoritm}
                         />
-                        <Grid container item>
-                            <Toolbar>
-                                <Typography>
-                                    {algoritm}: [
-                                    {algoritm === 'WET' && this.mapToRanking(wet)}
-                                    {algoritm === 'RPW' && this.mapToRanking(rpw)}
-                                    {algoritm === 'NOF' && this.mapToRanking(nof)}
-                                    {algoritm === 'NOIF' && this.mapToRanking(noif)}
-                                    ]
-                                </Typography>
-                            </Toolbar>
-                        </Grid>
+                        <SortedStringRanking
+                            algoritm={algoritm}
+                            blm={
+                                algoritm === 'WET' ? wet
+                                : algoritm === 'RPW' ? rpw
+                                : algoritm === 'NOF' ? nof
+                                : algoritm === 'NOIF' ? noif
+                                : []
+                            }
+                        />
                         <Grid container item>
                             {/* TODO */}
                             {/* <IconButton
@@ -101,11 +100,5 @@ export class Ranking extends React.Component<IRankingProps, IRankingState> {
                 }
             </Grid>
         );
-    }
-
-    private mapToRanking(blmRanking: IBlmEntity[]): string {
-        const ranking: number[] = [];
-        blmRanking.map((element: IBlmEntity) => ranking.push(element.id));
-        return join(ranking, ', ');
     }
 }

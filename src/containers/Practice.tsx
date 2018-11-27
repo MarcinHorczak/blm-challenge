@@ -6,9 +6,11 @@ import { BlmChart } from '../modules/BlmChart';
 import { BlmGenerator } from '../modules/BlmGenerator';
 import { IBlmEntity } from '../modules/BlmGenerator/model';
 import { SelectAlgoritm, SelectCycleTime } from '../modules/BlmRanking';
+import { EditableGanttChart } from '../modules/EditableGanttChart';
 import { EditableTable } from '../modules/EditableTable';
 import { IWagEntity } from '../modules/EditableTable/model';
 import { T } from '../modules/FormattedText';
+import { SortedStringRanking } from '../modules/SortedRankingInString';
 import { numberOfMachines } from '../settings';
 
 interface IPracticeState {
@@ -21,6 +23,7 @@ interface IPracticeState {
     isWagTableFull: boolean;
     update: boolean;
     createdRanking: string;
+    createdGantt: vis.Timeline | undefined;
 }
 
 export class Practice extends React.Component<{}, IPracticeState> {
@@ -45,6 +48,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
             isWagTableFull: false,
             update: false,
             createdRanking: '',
+            createdGantt: undefined,
         };
     }
 
@@ -87,7 +91,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
     }
 
     public render() {
-        const { blmModel, algoritm, cycleTime } = this.state;
+        const { blmModel, algoritm, cycleTime, ranking, isWagTableFull, createdGantt } = this.state;
         return (
             <Grid className="blm">
                 <Grid item container>
@@ -115,6 +119,16 @@ export class Practice extends React.Component<{}, IPracticeState> {
                         this.setState({ wags, isWagTableFull: isFull, update: true })
                     }
                     wag={this.state.wags}
+                />
+                <SortedStringRanking
+                    hidden={!isWagTableFull}
+                    algoritm={algoritm}
+                    blm={ranking}
+                />
+                <EditableGanttChart
+                    hidden={!isWagTableFull}
+                    createdGantt={createdGantt}
+                    setGantt={(gantt: vis.Timeline | undefined) => this.setState({ createdGantt: gantt })}
                 />
             </Grid>
         );
