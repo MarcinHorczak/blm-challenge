@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
-import { isNaN, isNil, maxBy } from 'lodash';
+import { isNaN, isNil, isUndefined, maxBy } from 'lodash';
 import { IGroupsEntity, IItemsEntity } from '../../BlmGanttChart/model';
 import { IBlmEntity } from '../../BlmGenerator/model';
 import { T } from '../../FormattedText';
@@ -12,6 +12,8 @@ interface IWorkingStationToolsProps {
     groups: IGroupsEntity[];
     setGroups: (groups: IGroupsEntity[]) => void;
     ranking: IBlmEntity[];
+    setRanking: (ranking: IBlmEntity[]) => void;
+    setOptionTime: (time: number) => void;
 }
 
 interface IWorkingStationToolsState {
@@ -88,8 +90,14 @@ export class WorkingStationTools extends React.Component<IWorkingStationToolsPro
                                         <MenuItem value=""><em><T value="none"/></em></MenuItem>
                                         {ranking
                                             .sort((a: IBlmEntity, b: IBlmEntity) => a.id - b.id)
+                                            .filter((item: IBlmEntity) => !item.isSetted)
                                             .map((item: IBlmEntity) => {
-                                                return <MenuItem value={item.id} key={item.id}>{item.id}</MenuItem>; })
+                                                return (
+                                                    <MenuItem value={item.id} key={item.id}>
+                                                        {item.id}({item.time})
+                                                    </MenuItem>
+                                                );
+                                            })
                                         }
                                     </Select>
                                 </FormControl>
@@ -121,6 +129,7 @@ export class WorkingStationTools extends React.Component<IWorkingStationToolsPro
                                 variant="outlined"
                                 onClick={() => this.addItemToChart()}
                                 fullWidth
+                                disabled={isNaN(selectedItem) || isNaN(selectedGroup)}
                             >
                                 Add
                             </Button>
@@ -140,7 +149,7 @@ export class WorkingStationTools extends React.Component<IWorkingStationToolsPro
     }
 
     private addItemToChart() {
-        const { ranking } = this.props;
+        const ranking = [...this.props.ranking];
         const { selectedGroup, selectedItem } = this.state;
         const items = [...this.props.items];
         const element = ranking.find((obj: IBlmEntity) => obj.id === selectedItem);
@@ -148,11 +157,12 @@ export class WorkingStationTools extends React.Component<IWorkingStationToolsPro
         if (!isNil(element)) {
             rankingElement = element;
         }
+        ranking[rankingElement.id - 1].isSetted = true;
 
         let lastGroupValue = 0;
-        const maxValue = maxBy(items, 'end');
-        if (!isNil(maxValue)) {
-            lastGroupValue = maxValue.end;
+        const maxTimeGroupValue = maxBy(items.filter((item: IItemsEntity) => item.group === selectedGroup), 'end');
+        if (!isNil(maxTimeGroupValue)) {
+            lastGroupValue = maxTimeGroupValue.end;
         }
 
         items.push({
@@ -163,12 +173,23 @@ export class WorkingStationTools extends React.Component<IWorkingStationToolsPro
             end: rankingElement.time + lastGroupValue,
         });
         this.props.setItems(items);
+        this.props.setRanking(ranking);
         this.setState({ isAddPanelOpened: false, selectedItem: NaN, selectedGroup: NaN });
+        let maxTimeGlobalValue = 0;
+        const maxTimeValue = maxBy(items, 'end');
+        if (!isUndefined(maxTimeValue)) {
+            maxTimeGlobalValue = maxTimeValue.end;
+        }
+        this.props.setOptionTime(maxTimeGlobalValue);
     }
 
     private onChangeWorkingStation(val: number) {
         const groups = [...this.props.groups];
+        const ranking = [...this.props.ranking];
+        const { items } = this.props;
         const iterator = groups.length + val;
+        let filteredItems: IItemsEntity[] = [];
+        let filteredRanking: IBlmEntity[] = [];
         if (val === 1) {
             groups.push({
                 id: iterator,
@@ -176,6 +197,16 @@ export class WorkingStationTools extends React.Component<IWorkingStationToolsPro
             });
         } else {
             groups.splice(-1);
+            filteredItems = items.filter((item: IItemsEntity) => {
+                const shouldFilter = item.group !== groups.length + 1;
+                if (!shouldFilter) {
+                    ranking[item.id - 1].isSetted = false;
+                }
+                return shouldFilter;
+            });
+            filteredRanking = ranking;
+            this.props.setItems(filteredItems);
+            this.props.setRanking(filteredRanking);
         }
         this.props.setGroups(groups);
     }

@@ -125,6 +125,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
                     hidden={!isWagTableFull}
                     // hidden={false}
                     ranking={ranking}
+                    setRanking={(r: IBlmEntity[]) => this.setState({ ranking: r })}
                 />
             </Grid>
         );

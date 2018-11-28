@@ -46,13 +46,14 @@ class SettingsMenuComponent extends React.Component<ISettingsMenuProps, ISetting
                     onClose={() => this.setState({ anchorEl: undefined })}
                 >
                     {
-                        menuSettings.map((o: IMenuOptionsEntity) => {
+                        menuSettings.map((o: IMenuOptionsEntity, i: number) => {
                             return (
                             <SettingsItem
                                 name={o.name}
                                 option={o.option}
                                 settings={settings}
                                 updateSettings={(option: any) => this.updateSettings(option)}
+                                key={i}
                             />
                         ); })
                     }

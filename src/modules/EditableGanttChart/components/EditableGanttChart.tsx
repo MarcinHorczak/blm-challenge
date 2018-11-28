@@ -12,6 +12,7 @@ import { WorkingStationTools } from '../../WorkingStationTools';
 interface IEditableGanttChartProps {
     hidden?: boolean;
     ranking: IBlmEntity[];
+    setRanking: (ranking: IBlmEntity[]) => void;
 }
 
 interface IEditableGanttChartState {
@@ -54,6 +55,8 @@ export class EditableGanttChart extends React.Component<IEditableGanttChartProps
                             setGroups={(g: IGroupsEntity[]) => this.setState({ groups: g })}
                             setItems={(i: IItemsEntity[]) => this.setState({ items: i })}
                             ranking={ranking}
+                            setRanking={(r: IBlmEntity[]) => this.props.setRanking(r)}
+                            setOptionTime={(t: number) => this.updateOptions(gantt, t)}
                         />
                         <div id="gantt"/>
                     </Grid>
@@ -76,5 +79,16 @@ export class EditableGanttChart extends React.Component<IEditableGanttChartProps
             groups: this.state.groups,
             items: this.state.items,
         });
+    }
+
+    private updateOptions(timeline: vis.Timeline, time: number) {
+        let newMaxTime;
+        if (time > maxTimeRange) {
+            newMaxTime = time;
+        } else {
+            newMaxTime = maxTimeRange;
+        }
+        const options = setOptions(newMaxTime);
+        timeline.setOptions(options);
     }
 }
