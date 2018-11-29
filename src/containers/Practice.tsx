@@ -120,14 +120,29 @@ export class Practice extends React.Component<{}, IPracticeState> {
                     hidden={!isWagTableFull}
                     algoritm={algoritm}
                     blm={ranking}
+                    disableStrikethrough={false}
                 />
                 <EditableGanttChart
                     hidden={!isWagTableFull}
                     // hidden={false}
                     ranking={ranking}
-                    setRanking={(r: IBlmEntity[]) => this.setState({ ranking: r })}
+                    setRanking={(r: IBlmEntity[]) => this.updateBlmSchema(r)}
                 />
             </Grid>
         );
+    }
+
+    private updateBlmSchema(ranking: IBlmEntity[]) {
+        const blmModel = [...this.state.blmModel];
+        blmModel.forEach((col: IBlmEntity[]) => {
+            col.forEach((modelItem: IBlmEntity) => {
+                ranking.map((rankingItem: IBlmEntity) => {
+                    if (rankingItem.id === modelItem.id) {
+                        modelItem.isSetted = rankingItem.isSetted;
+                    }
+                });
+            });
+        });
+        this.setState({ ranking, blmModel });
     }
 }

@@ -54,6 +54,18 @@ class BlmChartComponent extends React.Component<IBlmChartProps, IBlmChartState> 
                         fixed: true,
                         x: i * 120,
                         y: j * 70,
+                        color: item.isSetted ? {
+                            background: '#5AB931',
+                            border: '#104D00',
+                            highlight: {
+                                background: '#A7E58C',
+                                border: '#257B01',
+                            },
+                            hover: {
+                                background: '#A7E58C',
+                                border: '#104D00',
+                            },
+                        } : {},
                     });
                     if (item.next.top) {edgesArray.push({
                         from: item.id,

@@ -1,10 +1,12 @@
 import * as React from 'react';
 
-import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
-import { isNaN, isNil, isUndefined, maxBy } from 'lodash';
+import { Grid } from '@material-ui/core';
+import { isEqual, isNil, isUndefined, last, maxBy, remove } from 'lodash';
 import { IGroupsEntity, IItemsEntity } from '../../BlmGanttChart/model';
 import { IBlmEntity } from '../../BlmGenerator/model';
-import { T } from '../../FormattedText';
+import { AddOperationPanel } from './AddOperationPanel';
+import { DeleteOperationPanel } from './DeleteOperationPanel';
+import { WorkingStationMenuButton } from './WorkingStationMenuButtons';
 
 interface IWorkingStationToolsProps {
     items: IItemsEntity[];
@@ -17,9 +19,8 @@ interface IWorkingStationToolsProps {
 }
 
 interface IWorkingStationToolsState {
-    isAddPanelOpened: boolean;
-    isSelectItemsOpened: boolean;
-    isSelectGroupsOpened: boolean;
+    isAddOperationPanelOpened: boolean;
+    isDeleteOperationPanelOpened: boolean;
     selectedItem: number;
     selectedGroup: number;
 }
@@ -28,124 +29,68 @@ export class WorkingStationTools extends React.Component<IWorkingStationToolsPro
     constructor(props: IWorkingStationToolsProps) {
         super(props);
         this.state = {
-            isAddPanelOpened: false,
-            isSelectItemsOpened: false,
-            isSelectGroupsOpened: false,
+            isAddOperationPanelOpened: false,
+            isDeleteOperationPanelOpened: false,
             selectedItem: NaN,
             selectedGroup: NaN,
         };
     }
 
     public render() {
-        const { groups, ranking } = this.props;
+        const { groups, ranking, items } = this.props;
         const {
-            isAddPanelOpened,
-            isSelectItemsOpened,
+            isAddOperationPanelOpened,
             selectedItem,
-            isSelectGroupsOpened,
             selectedGroup,
+            isDeleteOperationPanelOpened,
         } = this.state;
         return(
             <Grid container spacing={16}>
-                <Grid item xs={4}>
-                    <Button
-                        variant="outlined"
-                        onClick={() => this.setState({ isAddPanelOpened: true })}
-                        fullWidth
-                        disabled={isAddPanelOpened || groups.length === 0}
-                    >
-                        Add to working station
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        onClick={() => this.onChangeWorkingStation(1)}
-                        fullWidth
-                        disabled={isAddPanelOpened}
-                    >
-                        Open new working station
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        onClick={() => this.onChangeWorkingStation(-1)}
-                        fullWidth
-                        disabled={isAddPanelOpened || groups.length === 0}
-                    >
-                        Close last working station
-                    </Button>
-                </Grid>
-                {isAddPanelOpened
-                    ? <>
-                        <Grid item xs={4}>
-                            <Grid container>
-                                <FormControl>
-                                    <InputLabel>Select operation</InputLabel>
-                                    <Select
-                                        open={isSelectItemsOpened}
-                                        onClose={() => this.setState({ isSelectItemsOpened: false })}
-                                        onOpen={() => this.setState({ isSelectItemsOpened: true })}
-                                        value={isNaN(selectedItem) ? '' : selectedItem}
-                                        onChange={(event: any) => this.setState({ selectedItem: event.target.value })}
-                                        style={{width: '250px'}}
-                                    >
-                                        <MenuItem value=""><em><T value="none"/></em></MenuItem>
-                                        {ranking
-                                            .sort((a: IBlmEntity, b: IBlmEntity) => a.id - b.id)
-                                            .filter((item: IBlmEntity) => !item.isSetted)
-                                            .map((item: IBlmEntity) => {
-                                                return (
-                                                    <MenuItem value={item.id} key={item.id}>
-                                                        {item.id}({item.time})
-                                                    </MenuItem>
-                                                );
-                                            })
-                                        }
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                            <Grid container>
-                                <FormControl>
-                                    <InputLabel>Select working station</InputLabel>
-                                    <Select
-                                        open={isSelectGroupsOpened}
-                                        onClose={() => this.setState({ isSelectGroupsOpened: false })}
-                                        onOpen={() => this.setState({ isSelectGroupsOpened: true })}
-                                        value={isNaN(selectedGroup) ? '' : selectedGroup}
-                                        onChange={(event: any) => this.setState({ selectedGroup: event.target.value })}
-                                        style={{width: '250px'}}
-                                    >
-                                        <MenuItem value=""><em><T value="none"/></em></MenuItem>
-                                        {groups.map((group: IGroupsEntity) => {
-                                            return <MenuItem value={group.id} key={group.id}>{group.id}</MenuItem>; })
-                                        }
-                                    </Select>
-                                </FormControl>
-                            </Grid>
-                        </Grid>
-                        <Grid item xs={3}>
-                            <Typography>
-                                Operations will be added at the end of last operation in selected working station
-                            </Typography>
-                            <Button
-                                variant="outlined"
-                                onClick={() => this.addItemToChart()}
-                                fullWidth
-                                disabled={isNaN(selectedItem) || isNaN(selectedGroup)}
-                            >
-                                Add
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                onClick={() => this.setState({ isAddPanelOpened: false })}
-                                fullWidth
-                            >
-                                Close
-                            </Button>
-                        </Grid>
-                    </>
+                <WorkingStationMenuButton
+                    groups={groups}
+                    isAddOperationPanelOpened={isAddOperationPanelOpened}
+                    isDeleteOperationPanelOpened={isDeleteOperationPanelOpened}
+                    items={items}
+                    onChangeWorkingStation={(value: number) => this.onChangeWorkingStation(value)}
+                    setOperationPanel={(flag: boolean) => this.setState({ isAddOperationPanelOpened: flag })}
+                    setDeletePanel={(flag: boolean) => this.setState({ isDeleteOperationPanelOpened: flag })}
+                />
+                {isAddOperationPanelOpened
+                    ? <AddOperationPanel
+                        addItemToChart={() => this.addItemToChart()}
+                        groups={groups}
+                        ranking={ranking}
+                        selectedGroup={selectedGroup}
+                        selectedItem={selectedItem}
+                        setSelectedGroup={(group: number) => this.setState({ selectedGroup: group })}
+                        setSelectedItem={(item: number) => this.setState({ selectedItem: item })}
+                        closeAddOperationPanel={() => this.setState({ isAddOperationPanelOpened: false })}
+                    />
+                    : null
+                }
+                {isDeleteOperationPanelOpened
+                    ? <DeleteOperationPanel
+                        groups={groups}
+                        setSelectedGroup={(id: number) => this.deleteLastItemFromGroup(id)}
+                        setDeletePanel={(flag: boolean) => this.setState({ isDeleteOperationPanelOpened: flag })}
+                    />
                     : null
                 }
             </Grid>
         );
+    }
+
+    private deleteLastItemFromGroup(id: number) {
+        const items = [...this.props.items];
+        const lastItem = last(items.filter((item: IItemsEntity) => item.group === id));
+        const newItems = remove(items, (item: IItemsEntity) => !isEqual(item, lastItem));
+        this.props.setItems(newItems);
+
+        if (!isNil(lastItem)) {
+            const ranking = [...this.props.ranking];
+            ranking[lastItem.id - 1].isSetted = false;
+            this.props.setRanking(ranking);
+        }
     }
 
     private addItemToChart() {
@@ -174,7 +119,7 @@ export class WorkingStationTools extends React.Component<IWorkingStationToolsPro
         });
         this.props.setItems(items);
         this.props.setRanking(ranking);
-        this.setState({ isAddPanelOpened: false, selectedItem: NaN, selectedGroup: NaN });
+        this.setState({ isAddOperationPanelOpened: false, selectedItem: NaN, selectedGroup: NaN });
         let maxTimeGlobalValue = 0;
         const maxTimeValue = maxBy(items, 'end');
         if (!isUndefined(maxTimeValue)) {

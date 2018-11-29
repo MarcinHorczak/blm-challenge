@@ -4,6 +4,7 @@ export interface INodeEntity {
     fixed: boolean;
     x: number;
     y: number;
+    color: object;
 }
 
 export interface IEdgeEntity {

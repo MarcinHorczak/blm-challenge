@@ -70,6 +70,7 @@ export class Ranking extends React.Component<IRankingProps, IRankingState> {
                                 : algoritm === 'NOIF' ? noif
                                 : []
                             }
+                            disableStrikethrough={true}
                         />
                         <Grid container item>
                             {/* TODO */}

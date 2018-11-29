@@ -1,5 +1,5 @@
 // export const numberOfMachines = 30;
-export const numberOfMachines = 3;
+export const numberOfMachines = 4;
 // export const minLineLength = 10;
 export const minLineLength = 2;
 export const maxLineLength = 20;
