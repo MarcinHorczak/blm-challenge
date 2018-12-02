@@ -7,11 +7,18 @@ import { BlmGenerator } from '../modules/BlmGenerator';
 import { IBlmEntity } from '../modules/BlmGenerator/model';
 import { SelectAlgoritm, SelectCycleTime } from '../modules/BlmRanking';
 import { EditableGanttChart } from '../modules/EditableGanttChart';
+import { EditableIndicatorTable } from '../modules/EditableIndicatorTable';
 import { EditableTable } from '../modules/EditableTable';
 import { IWagEntity } from '../modules/EditableTable/model';
 import { T } from '../modules/FormattedText';
 import { SortedStringRanking } from '../modules/SortedRankingInString';
 import { numberOfMachines } from '../settings';
+
+interface IIndicatorEntity {
+    LE: number;
+    SL: number;
+    T: number;
+}
 
 interface IPracticeState {
     blmModel: IBlmEntity[][];
@@ -22,6 +29,8 @@ interface IPracticeState {
     validations: string[];
     isWagTableFull: boolean;
     update: boolean;
+    indicators: IIndicatorEntity;
+    isGanttFull: boolean;
 }
 
 export class Practice extends React.Component<{}, IPracticeState> {
@@ -45,6 +54,12 @@ export class Practice extends React.Component<{}, IPracticeState> {
             validations: [],
             isWagTableFull: false,
             update: false,
+            indicators: {
+                LE: 0,
+                SL: 0,
+                T: 0,
+            },
+            isGanttFull: false,
         };
     }
 
@@ -87,7 +102,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
     }
 
     public render() {
-        const { blmModel, algoritm, cycleTime, ranking, isWagTableFull } = this.state;
+        const { blmModel, algoritm, cycleTime, ranking, isWagTableFull, isGanttFull } = this.state;
         return (
             <Grid className="blm">
                 <Grid item container>
@@ -124,15 +139,23 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 />
                 <EditableGanttChart
                     hidden={!isWagTableFull}
-                    // hidden={false}
                     ranking={ranking}
                     setRanking={(r: IBlmEntity[]) => this.updateBlmSchema(r)}
+                />
+                <EditableIndicatorTable
+                    hidden={!isGanttFull}
+                    setIndicators={(LE: number, SL: number, TT: number) => this.setIndicatorsAndValidate(LE, SL, TT)}
                 />
             </Grid>
         );
     }
 
+    private setIndicatorsAndValidate(LE: number, SL: number, TT: number) {
+        this.setState({ indicators: {LE, SL, T: TT} });
+    }
+
     private updateBlmSchema(ranking: IBlmEntity[]) {
+        let isGanttFull = true;
         const blmModel = [...this.state.blmModel];
         blmModel.forEach((col: IBlmEntity[]) => {
             col.forEach((modelItem: IBlmEntity) => {
@@ -140,9 +163,12 @@ export class Practice extends React.Component<{}, IPracticeState> {
                     if (rankingItem.id === modelItem.id) {
                         modelItem.isSetted = rankingItem.isSetted;
                     }
+                    if (!rankingItem.isSetted) {
+                        isGanttFull = false;
+                    }
                 });
             });
         });
-        this.setState({ ranking, blmModel });
+        this.setState({ ranking, blmModel, isGanttFull });
     }
 }
