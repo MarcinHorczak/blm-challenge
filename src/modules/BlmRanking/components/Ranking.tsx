@@ -34,6 +34,7 @@ export class Ranking extends React.Component<IRankingProps, IRankingState> {
                 blmAlgoritm.push({
                     id: el.id,
                     isSetted: el.isSetted,
+                    wet: el.time,
                     time: el.time,
                     depends: el.depends,
                     isChecked: el.isChecked,

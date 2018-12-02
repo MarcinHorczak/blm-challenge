@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { Grid, Typography } from '@material-ui/core';
-import { filter, reverse, sortBy } from 'lodash';
+import { filter, find, get, isUndefined, lowerCase, reverse, sortBy } from 'lodash';
 import { BlmChart } from '../modules/BlmChart';
 import { BlmGenerator } from '../modules/BlmGenerator';
 import { IBlmEntity } from '../modules/BlmGenerator/model';
@@ -77,6 +77,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
                         id: el.id,
                         isSetted: el.isSetted,
                         time: el.time,
+                        wet: el.time,
                         depends: el.depends,
                         isChecked: el.isChecked,
                         isConnected: el.isConnected,
@@ -152,6 +153,26 @@ export class Practice extends React.Component<{}, IPracticeState> {
 
     private setIndicatorsAndValidate(LE: number, SL: number, TT: number) {
         this.setState({ indicators: {LE, SL, T: TT} });
+        this.validate();
+    }
+
+    private validate() {
+        const { blmModel, algoritm } = this.state;
+        const wags = this.state.wags;
+        let found;
+        blmModel.map((col: IBlmEntity[]) => col.map((modelItem: IBlmEntity) => {
+            found = find(wags, (rankingElement: IWagEntity) => rankingElement.id === modelItem.id);
+            if (!isUndefined(found)) {
+                if (wags[found.id].wag === get(modelItem, lowerCase(algoritm), 0)) {
+                    wags[found.id].isCorrect = true;
+                    wags[found.id].isError = false;
+                } else {
+                    wags[found.id].isCorrect = false;
+                    wags[found.id].isError = true;
+                }
+            }
+        }));
+        this.setState({ wags });
     }
 
     private updateBlmSchema(ranking: IBlmEntity[]) {

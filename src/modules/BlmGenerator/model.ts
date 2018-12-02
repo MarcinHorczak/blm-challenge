@@ -7,6 +7,7 @@ export interface IBlmConnections {
 export interface IBlmEntity {
     id: number;
     time: number;
+    wet: number;
     rpw: number;
     nof: number;
     noif: number;

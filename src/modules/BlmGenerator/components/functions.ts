@@ -16,6 +16,7 @@ export function createEmptyArray(lineLength: number, machines: number): IBlmEnti
         blm[i] = {
             id: 0,
             time: 0,
+            wet: 0,
             nof: -1,
             noif: 0,
             rpw: -1,
@@ -195,6 +196,7 @@ export function setElementsIdAndTime(blm: IBlmEntity[][]): IBlmEntity[][] {
             if (blm[i][j].isExist) {
                 time = Math.floor(Math.random() * (maxTimeRange - minTimeRange) + minTimeRange);
                 blm[i][j].time = time;
+                blm[i][j].wet = time;
                 if (maxTime < time) {maxTime = time; }
                 blm[i][j].id = iterator;
                 iterator++;

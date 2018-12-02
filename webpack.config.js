@@ -10,14 +10,6 @@ module.exports = (env = {}) => {
     const templateInjectBefore  = env.templateInjectBefore;
     const templateFileName = env.templateFileName || 'index.html';
 
-    if (!(bundleOutputDir && String(bundleOutputDir))) {
-        throw new Error(`
-            Invalid bundle output dir.
-            Ensure the parameter --env.bundleOutputDir is set.
-            Expected string but "${bundleOutputDir}" is given.
-        `)
-    }
-
     return [{
         devServer: {
             historyApiFallback: {
