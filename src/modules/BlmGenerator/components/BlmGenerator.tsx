@@ -4,8 +4,8 @@ import { Button, Grid } from '@material-ui/core';
 import { chunk } from 'lodash';
 import { lineHeight } from '../../../settings';
 import { T } from '../../FormattedText';
-import { SettingsMenu } from '../../SettingsMenu';
-import { blmGraphOptions } from '../../SettingsMenu/settings';
+// import { SettingsMenu } from '../../SettingsMenu';
+// import { blmGraphOptions } from '../../SettingsMenu/settings';
 import { IBlmEntity } from '../model';
 import {
     addRestOfElements,
@@ -45,7 +45,7 @@ export class BlmGenerator extends React.Component<IBlmGeneratorProps, {}> {
                     </Button>
                 </Grid>
                 }
-                <SettingsMenu menuSettings={blmGraphOptions}/>
+                {/* <SettingsMenu menuSettings={blmGraphOptions}/> */}
             </Grid>
         );
     }

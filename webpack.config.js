@@ -6,7 +6,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = (env = {}) => {
     const isDevBuild = !env.production;
-    const bundleOutputDir = env.bundleOutputDir;
     const templateInjectBefore  = env.templateInjectBefore;
     const templateFileName = env.templateFileName || 'index.html';
 
@@ -21,7 +20,7 @@ module.exports = (env = {}) => {
         entry: { 'main': './src/index.tsx' },
         resolve: { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
         output: {
-            path: path.join(__dirname, bundleOutputDir),
+            path: path.join(__dirname, 'build'),
             filename: '[name].js',
             publicPath: '/'
         },
@@ -57,12 +56,12 @@ module.exports = (env = {}) => {
                         templateInjectBefore
                     }
                 }),
-                new CleanWebpackPlugin([bundleOutputDir], { allowExternal: true } ),
+                new CleanWebpackPlugin(['build'], { allowExternal: true } ),
             ].concat(
                 isDevBuild ? [
                     new webpack.SourceMapDevToolPlugin({
                         filename: '[file].map',
-                        moduleFilenameTemplate: path.relative(bundleOutputDir, '[resourcePath]')
+                        moduleFilenameTemplate: path.relative('build', '[resourcePath]')
                     })
                 ] : []
             )

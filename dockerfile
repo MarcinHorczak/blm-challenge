@@ -1,11 +1,13 @@
-FROM node:latest
+FROM node:8
 
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
+RUN mkdir -p /usr/app
+WORKDIR /usr/app
 
-COPY package.json /usr/src/app
+COPY package.json /usr/app/
 RUN yarn install
 
-ADD src /usr/src/app/src
+COPY . /usr/app
 
-RUN yarn run dev
+EXPOSE 8080
+
+CMD ["yarn", "run", "dev"]
