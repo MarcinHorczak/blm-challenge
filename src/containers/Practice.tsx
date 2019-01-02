@@ -38,6 +38,7 @@ interface IPracticeState {
     createdGroups: IGroupsEntity[];
     correctItems: IItemsEntity[];
     correctGroups: IGroupsEntity[];
+    areWagsCorrect: boolean;
 }
 
 export class Practice extends React.Component<{}, IPracticeState> {
@@ -73,11 +74,19 @@ export class Practice extends React.Component<{}, IPracticeState> {
             createdItems: [],
             correctGroups: [],
             correctItems: [],
+            areWagsCorrect: true,
         };
     }
 
-    public componentDidUpdate() {
-        const { update, isWagTableFull, wags, blmModel } = this.state;
+    public componentDidUpdate(_: any, prevState: IPracticeState) {
+        const {
+            update,
+            isWagTableFull,
+            wags,
+            blmModel,
+            correctItems,
+            areWagsCorrect,
+        } = this.state;
         if (update && isWagTableFull) {
             const blm: IBlmEntity[] = [];
             const ranking: IBlmEntity[] = [];
@@ -113,6 +122,10 @@ export class Practice extends React.Component<{}, IPracticeState> {
 
             this.setState({ ranking, update: false });
         }
+
+        if (prevState.correctItems !== correctItems && areWagsCorrect) {
+            this.validateItems();
+        }
     }
 
     public render() {
@@ -126,6 +139,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
             isCorrectGanttOpened,
             createdGroups,
             createdItems,
+            areWagsCorrect,
         } = this.state;
         return (
             <Grid className="blm">
@@ -180,14 +194,20 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 />
                 {isCorrectGanttOpened
                     ? <Paper style={{backgroundColor: '#bfcefd', padding: '10px'}}>
-                        <Typography variant="title">Correct solution:</Typography>
-                        <GanttChart
-                            hidden={false}
-                            blmMinTime={cycleTime}
-                            ranking={ranking}
-                            setGroups={(g: IGroupsEntity[]) => this.setState({ correctGroups: g })}
-                            setItems={(i: IItemsEntity[]) => this.setState({ correctItems: i })}
-                        />
+                        {areWagsCorrect
+                            ? <>
+                                <Typography variant="title">Correct solution:</Typography>
+                                <GanttChart
+                                    hidden={false}
+                                    blmMinTime={cycleTime}
+                                    ranking={ranking}
+                                    setGroups={(g: IGroupsEntity[]) => this.setState({ correctGroups: g })}
+                                    setItems={(i: IItemsEntity[]) => this.setState({ correctItems: i })}
+                                />
+                            </>
+                            : <Typography variant="title">
+                                Wags are not correct. Gantt chart will not be validated :(
+                            </Typography>}
                     </Paper>
                     : null
                 }
@@ -197,12 +217,13 @@ export class Practice extends React.Component<{}, IPracticeState> {
 
     private setIndicatorsAndValidate(LE: number, SL: number, TT: number) {
         this.setState({ indicators: {LE, SL, T: TT}, isCorrectGanttOpened: true });
-        this.validate();
+        this.validateWags();
     }
 
-    private validate() {
+    private validateWags() {
         const { blmModel, algoritm } = this.state;
         const wags = this.state.wags;
+        let areWagsCorrect = true;
         let found;
         blmModel.map((col: IBlmEntity[]) => col.map((modelItem: IBlmEntity) => {
             found = find(wags, (rankingElement: IWagEntity) => rankingElement.id === modelItem.id);
@@ -210,14 +231,38 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 if (wags[found.id].wag === get(modelItem, lowerCase(algoritm), 0)) {
                     wags[found.id].isCorrect = true;
                     wags[found.id].isError = false;
+                    wags[found.id].correctValue = get(modelItem, lowerCase(algoritm), 0);
                 } else {
                     wags[found.id].isCorrect = false;
                     wags[found.id].isError = true;
                     wags[found.id].correctValue = get(modelItem, lowerCase(algoritm), 0);
+                    areWagsCorrect = false;
                 }
             }
         }));
-        this.setState({ wags });
+        this.setState({ wags, areWagsCorrect });
+    }
+
+    private validateItems() {
+        const { createdItems, correctItems } = this.state;
+        const validatedItems: IItemsEntity[] = [];
+        let foundItem: IItemsEntity | undefined;
+        createdItems.map((createdItem: IItemsEntity) => {
+            foundItem = correctItems.find((correctItem: IItemsEntity) => correctItem.id + 1 === createdItem.id);
+            if (!isUndefined(foundItem)) {
+                if (
+                    foundItem.start === createdItem.start
+                    && foundItem.end === createdItem.end
+                    && foundItem.group === createdItem.group
+                ) {
+                    createdItem.style = 'background-color: #5AB931';
+                } else {
+                    createdItem.style = 'background-color: red';
+                }
+                validatedItems.push(createdItem);
+            }
+        });
+        this.setState({ createdItems: validatedItems });
     }
 
     private updateBlmSchema(ranking: IBlmEntity[]) {
