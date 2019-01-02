@@ -53,6 +53,7 @@
   "scripts": {
     "build": "webpack-dev-server",
     "dev": "node_modules/.bin/webpack-dev-server",
-    "lint": "tslint 'src/**/*.ts{,x}'"
+    "lint": "tslint 'src/**/*.ts{,x}'",
+    "heroku-postbuild": "webpack-dev-server"
   }
 }
