@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { Button, Grid } from '@material-ui/core';
 import { IGroupsEntity, IItemsEntity } from '../../BlmGanttChart/model';
+import { T } from '../../FormattedText';
 
 interface IWorkingStationMenuButtonsProps {
     isAddOperationPanelOpened: boolean;
@@ -24,7 +25,7 @@ export class WorkingStationMenuButton extends React.Component<IWorkingStationMen
                     fullWidth
                     disabled={isDeleteOperationPanelOpened || isAddOperationPanelOpened || groups.length === 0}
                 >
-                    Add operation to working station
+                    <T value="addOperationToWorkStation"/>
                 </Button>
                 <Button
                     variant="outlined"
@@ -32,7 +33,7 @@ export class WorkingStationMenuButton extends React.Component<IWorkingStationMen
                     fullWidth
                     disabled={isDeleteOperationPanelOpened || isAddOperationPanelOpened}
                 >
-                    Open new working station
+                    <T value="openNewWorkStation"/>
                 </Button>
                 <Button
                     variant="outlined"
@@ -40,7 +41,7 @@ export class WorkingStationMenuButton extends React.Component<IWorkingStationMen
                     fullWidth
                     disabled={isDeleteOperationPanelOpened || isAddOperationPanelOpened || items.length === 0}
                 >
-                    Delete operation
+                    <T value="deleteOperation"/>
                 </Button>
                 <Button
                     variant="outlined"
@@ -48,7 +49,7 @@ export class WorkingStationMenuButton extends React.Component<IWorkingStationMen
                     fullWidth
                     disabled={isDeleteOperationPanelOpened || isAddOperationPanelOpened || groups.length === 0}
                 >
-                    Close last working station
+                    <T value="closeLastWorkStation"/>
                 </Button>
             </Grid>
         );

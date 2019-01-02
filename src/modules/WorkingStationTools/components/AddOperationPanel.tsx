@@ -39,7 +39,7 @@ export class AddOperationPanel extends React.Component<IAddOperationPanelProps, 
                 <Grid item xs={4}>
                     <Grid container>
                         <FormControl>
-                            <InputLabel>Select operation</InputLabel>
+                            <InputLabel><T value="selectOperation"/></InputLabel>
                             <Select
                                 open={isSelectItemsOpened}
                                 onClose={() => this.setState({ isSelectItemsOpened: false })}
@@ -65,7 +65,7 @@ export class AddOperationPanel extends React.Component<IAddOperationPanelProps, 
                     </Grid>
                     <Grid container>
                         <FormControl>
-                            <InputLabel>Select working station</InputLabel>
+                            <InputLabel><T value="selectWorkStation"/></InputLabel>
                             <Select
                                 open={isSelectGroupsOpened}
                                 onClose={() => this.setState({ isSelectGroupsOpened: false })}
@@ -85,7 +85,7 @@ export class AddOperationPanel extends React.Component<IAddOperationPanelProps, 
                 </Grid>
                 <Grid item xs={3}>
                     <Typography>
-                        Operations will be added at the end of last operation in selected working station
+                        <T value="operationWillBeAddedAtTheEndOfLastOperationInSelectedWorkStation"/>
                     </Typography>
                     <Button
                         variant="outlined"
@@ -93,14 +93,14 @@ export class AddOperationPanel extends React.Component<IAddOperationPanelProps, 
                         fullWidth
                         disabled={!isNumber(selectedItem) || isNaN(selectedGroup)}
                     >
-                        Add
+                        <T value="add"/>
                     </Button>
                     <Button
                         variant="outlined"
                         onClick={() => this.props.closeAddOperationPanel()}
                         fullWidth
                     >
-                        Close
+                        <T value="close"/>
                     </Button>
                 </Grid>
             </>

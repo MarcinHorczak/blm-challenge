@@ -30,10 +30,10 @@ export class DeleteOperationPanel extends React.Component<IDeleteOperationPanelP
         const { isSelectGroupsOpened, selectedGroup } = this.state;
         return(
             <Grid item xs={7}>
-                Select Working Station to remove last element
+                <T value="selectWorkStationToRemoveLastElement"/>
                 <Grid container>
                     <FormControl>
-                        <InputLabel>Select working station</InputLabel>
+                        <InputLabel><T value="selectWorkStation"/></InputLabel>
                         <Select
                             open={isSelectGroupsOpened}
                             onClose={() => this.setState({ isSelectGroupsOpened: false })}
@@ -65,7 +65,7 @@ export class DeleteOperationPanel extends React.Component<IDeleteOperationPanelP
                         fullWidth
                         disabled={isNaN(selectedGroup)}
                     >
-                        Remove
+                        <T value="remove"/>
                     </Button>
                 </Grid>
                 <Grid container>
@@ -74,7 +74,7 @@ export class DeleteOperationPanel extends React.Component<IDeleteOperationPanelP
                         onClick={() => this.props.setDeletePanel(false)}
                         fullWidth
                     >
-                        Cancel
+                        <T value="cancel"/>
                     </Button>
                 </Grid>
             </Grid>

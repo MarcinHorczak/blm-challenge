@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Grid, Table, TableBody, TableCell, TableRow } from '@material-ui/core';
 import { get, isNil } from 'lodash';
 import { IBlmEntity } from '../../BlmGenerator/model';
+import { T } from '../../FormattedText';
 import { blmRankingAlgoritm, IBlmRanking } from '../settings';
 
 interface IRankingTableProps {
@@ -18,7 +19,7 @@ export class RankingTable extends React.Component<IRankingTableProps, {}> {
                 <Table padding="checkbox">
                     <TableBody>
                         <TableRow>
-                            <TableCell>Number</TableCell>
+                            <TableCell><T value="number"/></TableCell>
                             {
                                 ranking.map((item: IBlmEntity) =>
                                     <TableCell key={item.id}>{item.id}</TableCell>,

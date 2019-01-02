@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { Button, Grid, Table, TableBody, TableCell, TableRow, TextField } from '@material-ui/core';
+import { T as Translation } from '../../FormattedText/components/FormattedText';
 
 interface IEditableIndicatorTableProps {
     hidden?: boolean;
@@ -47,17 +48,17 @@ export class EditableIndicatorTable extends React.Component<IEditableIndicatorTa
                 {hidden
                     ? null
                     : <Grid>
-                        {disabled ? null : <>Please to type indicators (accurate to two decimal places)</>}
+                        {disabled ? null : <Translation value="pleaseToTypeIndicators"/>}
                         <Table padding="checkbox">
                             <TableBody>
                                 <TableRow>
-                                    <TableCell>Iindicator:</TableCell>
+                                    <TableCell><Translation value="indicator"/>:</TableCell>
                                     <TableCell>LE</TableCell>
                                     <TableCell>SL</TableCell>
                                     <TableCell>T</TableCell>
                                 </TableRow>
                                 <TableRow>
-                                    <TableCell>Value:</TableCell>
+                                    <TableCell><Translation value="value"/>:</TableCell>
                                     <TableCell>
                                         <TextField
                                             value={LE}
@@ -93,7 +94,7 @@ export class EditableIndicatorTable extends React.Component<IEditableIndicatorTa
                             disabled={!submitButton}
                             onClick={() => this.props.setIndicators(parseFloat(LE), parseFloat(SL), parseFloat(T))}
                         >
-                            Submit and Finish
+                            <Translation value="submitAndFinish"/>
                         </Button>}
                     </Grid>
                 }

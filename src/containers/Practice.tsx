@@ -196,7 +196,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
                     ? <Paper style={{backgroundColor: '#bfcefd', padding: '10px'}}>
                         {areWagsCorrect
                             ? <>
-                                <Typography variant="title">Correct solution:</Typography>
+                                <Typography variant="title"><T value="correctSolution"/></Typography>
                                 <GanttChart
                                     hidden={false}
                                     blmMinTime={cycleTime}
@@ -206,7 +206,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
                                 />
                             </>
                             : <Typography variant="title">
-                                Wags are not correct. Gantt chart will not be validated :(
+                                <T value="weightsAreNotCorrect"/>
                             </Typography>}
                     </Paper>
                     : null

@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { Button, Grid, Table, TableBody, TableCell, TableRow, Tooltip, Typography } from '@material-ui/core';
 import { numberOfMachines } from '../../../settings';
+import { T } from '../../FormattedText';
 import { IWagEntity } from '../model';
 
 interface IEditableTableProps {
@@ -84,7 +85,7 @@ export class EditableTable extends React.Component<IEditableTableProps, IEditabl
                                 && <Grid container>
                                     <Grid container>
                                         <Typography variant="title">
-                                            Select wag for order: {this.state.current}
+                                            <T value="selectWeightForOrder"/> {this.state.current}
                                         </Typography>
                                     </Grid>
                                     <Grid item sm={2}>
@@ -109,7 +110,7 @@ export class EditableTable extends React.Component<IEditableTableProps, IEditabl
                                             variant="title"
                                             align="center"
                                         >
-                                            Wag: {this.state.currentValue}
+                                            <T value="weight"/>: {this.state.currentValue}
                                         </Typography>
                                     </Grid>
                                     <Grid item sm={2}>
@@ -136,7 +137,7 @@ export class EditableTable extends React.Component<IEditableTableProps, IEditabl
                                                 variant="contained"
                                                 onClick={() => this.saveWag()}
                                             >
-                                                Submit wag
+                                                <T value="submitWeight"/>
                                             </Button>
                                         </Grid>
                                         <Grid item sm={4}>
@@ -145,7 +146,7 @@ export class EditableTable extends React.Component<IEditableTableProps, IEditabl
                                                 variant="contained"
                                                 onClick={() => this.setState({ open: false })}
                                             >
-                                                Cancel
+                                                <T value="cancel"/>
                                             </Button>
                                         </Grid>
                                     </Grid>

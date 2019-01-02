@@ -138,7 +138,7 @@ export class WorkingStationTools extends React.Component<IWorkingStationToolsPro
         if (val === 1) {
             groups.push({
                 id: iterator,
-                content: `Series ${iterator}`,
+                content: `Cycle ${iterator}`,
             });
         } else {
             groups.splice(-1);

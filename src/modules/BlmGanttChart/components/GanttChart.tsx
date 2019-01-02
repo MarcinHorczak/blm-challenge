@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableRow } from '@material-ui/core';
 import { isNull } from 'lodash';
 import * as vis from 'vis';
 import { IBlmEntity } from '../../BlmGenerator/model';
+import { T } from '../../FormattedText';
 import { setOptions } from '../functions';
 import { IGroupsEntity, IItemsEntity } from '../model';
 
@@ -58,16 +59,16 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
                 <Table padding="checkbox">
                     <TableBody>
                         <TableRow>
-                            <TableCell>Iindicator:</TableCell>
+                            <TableCell><T value="indicator"/>:</TableCell>
                             <TableCell>LE</TableCell>
                             <TableCell>SL</TableCell>
                             <TableCell>T</TableCell>
                         </TableRow>
                         <TableRow>
-                            <TableCell>Value:</TableCell>
+                            <TableCell><T value="value"/>:</TableCell>
                             <TableCell>{this.state.LE} %</TableCell>
                             <TableCell>{this.state.SL}</TableCell>
-                            <TableCell>{this.state.T} or {this.state.TAlt}</TableCell>
+                            <TableCell>{this.state.T} <T value="or"/> {this.state.TAlt}</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
@@ -176,7 +177,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
         for (let i = 1; i <= numberOfGroups; i++) {
             groups.push({
                 id: i,
-                content: `Series ${i}`,
+                content: `Operation ${i}`,
             });
             groups.sort((a: IGroupsEntity, b: IGroupsEntity) => a.id - b.id);
         }

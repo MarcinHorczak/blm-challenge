@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { Grid, TextField } from '@material-ui/core';
 import { maxTimeRange } from '../../../settings';
+import { T } from '../../FormattedText';
 
 interface ISelectCycleTimeProps {
     getTime: (time: number) => void;
@@ -34,7 +35,7 @@ export class SelectCycleTime extends React.Component<ISelectCycleTimeProps, ISel
                     ? null
                     : <TextField
                         id="standard-number"
-                        label="Series"
+                        label={<T value="operation"/>}
                         value={time}
                         onChange={(event: any) => this.onChange(event.target.value)}
                         type="number"
