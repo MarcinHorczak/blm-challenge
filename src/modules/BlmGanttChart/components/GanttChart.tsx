@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Table, TableBody, TableCell, TableRow } from '@material-ui/core';
 import { isNull } from 'lodash';
 import * as vis from 'vis';
+import { IIndicatorEntity } from '../../../containers/Practice';
 import { IBlmEntity } from '../../BlmGenerator/model';
 import { T } from '../../FormattedText';
 import { setOptions } from '../functions';
@@ -14,14 +15,12 @@ interface IGanttChartProps {
     hidden?: boolean;
     setItems: (items: IItemsEntity[]) => void;
     setGroups: (groups: IGroupsEntity[]) => void;
+    indicators: IIndicatorEntity;
+    setIndicators: (indicators: IIndicatorEntity) => void;
 }
 
 interface IGanttChartState {
     timeline: vis.Timeline | undefined;
-    LE: number;
-    SL: number;
-    T: number;
-    TAlt: number;
 }
 
 let gantt: vis.Timeline;
@@ -29,10 +28,6 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
     constructor(props: IGanttChartProps) {
         super(props);
         this.state = {
-            LE: 0,
-            SL: 0,
-            T: 0,
-            TAlt: 0,
             timeline: undefined,
         };
     }
@@ -66,9 +61,11 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
                         </TableRow>
                         <TableRow>
                             <TableCell><T value="value"/>:</TableCell>
-                            <TableCell>{this.state.LE} %</TableCell>
-                            <TableCell>{this.state.SL}</TableCell>
-                            <TableCell>{this.state.T} <T value="or"/> {this.state.TAlt}</TableCell>
+                            <TableCell>{this.props.indicators.LE} %</TableCell>
+                            <TableCell>{this.props.indicators.SL}</TableCell>
+                            <TableCell>
+                                {this.props.indicators.T} <T value="or"/> {this.props.indicators.TAlt}
+                            </TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
@@ -158,12 +155,14 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
                 if (!item.isChecked) {isGanttChartCreated = false; }
             });
         } while (!isGanttChartCreated);
-        this.setState({
+
+        const indicators: IIndicatorEntity = {
             LE: Math.round((sumSTi / ((cycleNumber - 1) * this.props.blmMinTime)) * 10000) / 100,
             SL: Math.round(Math.sqrt(sumSL) * 100) / 100,
             T: this.props.blmMinTime * (cycleNumber - 1),
             TAlt: (this.props.blmMinTime * (cycleNumber - 2)) + lastT,
-        });
+        };
+        this.props.setIndicators(indicators);
         this.props.setItems(rankingItems);
         return rankingItems;
     }

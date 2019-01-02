@@ -16,10 +16,11 @@ import { T } from '../modules/FormattedText';
 import { SortedStringRanking } from '../modules/SortedRankingInString';
 import { numberOfMachines } from '../settings';
 
-interface IIndicatorEntity {
+export interface IIndicatorEntity {
     LE: number;
     SL: number;
     T: number;
+    TAlt?: number;
 }
 
 interface IPracticeState {
@@ -32,6 +33,7 @@ interface IPracticeState {
     isWagTableFull: boolean;
     update: boolean;
     indicators: IIndicatorEntity;
+    correctIndicators: IIndicatorEntity;
     isGanttFull: boolean;
     isCorrectGanttOpened: boolean;
     createdItems: IItemsEntity[];
@@ -39,6 +41,7 @@ interface IPracticeState {
     correctItems: IItemsEntity[];
     correctGroups: IGroupsEntity[];
     areWagsCorrect: boolean;
+    areItemsCorrect: boolean;
 }
 
 export class Practice extends React.Component<{}, IPracticeState> {
@@ -67,6 +70,13 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 LE: 0,
                 SL: 0,
                 T: 0,
+                TAlt: 0,
+            },
+            correctIndicators: {
+                LE: 0,
+                SL: 0,
+                T: 0,
+                TAlt: 0,
             },
             isGanttFull: false,
             isCorrectGanttOpened: false,
@@ -74,7 +84,8 @@ export class Practice extends React.Component<{}, IPracticeState> {
             createdItems: [],
             correctGroups: [],
             correctItems: [],
-            areWagsCorrect: true,
+            areWagsCorrect: false,
+            areItemsCorrect: false,
         };
     }
 
@@ -124,7 +135,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
         }
 
         if (prevState.correctItems !== correctItems && areWagsCorrect) {
-            this.validateItems();
+            this.validateItemsAndIndicators();
         }
     }
 
@@ -140,6 +151,8 @@ export class Practice extends React.Component<{}, IPracticeState> {
             createdGroups,
             createdItems,
             areWagsCorrect,
+            areItemsCorrect,
+            correctIndicators,
         } = this.state;
         return (
             <Grid className="blm">
@@ -195,18 +208,24 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 {isCorrectGanttOpened
                     ? <Paper style={{backgroundColor: '#bfcefd', padding: '10px'}}>
                         {areWagsCorrect
-                            ? <>
-                                <Typography variant="title"><T value="correctSolution"/></Typography>
-                                <GanttChart
-                                    hidden={false}
-                                    blmMinTime={cycleTime}
-                                    ranking={ranking}
-                                    setGroups={(g: IGroupsEntity[]) => this.setState({ correctGroups: g })}
-                                    setItems={(i: IItemsEntity[]) => this.setState({ correctItems: i })}
-                                />
-                            </>
+                            ? areItemsCorrect
+                                ? <Typography variant="title"><T value="wellDone"/></Typography>
+                                : <>
+                                    <Typography variant="title"><T value="correctSolution"/></Typography>
+                                    <GanttChart
+                                        hidden={false}
+                                        blmMinTime={cycleTime}
+                                        ranking={ranking}
+                                        setGroups={(g: IGroupsEntity[]) => this.setState({ correctGroups: g })}
+                                        setItems={(i: IItemsEntity[]) => this.setState({ correctItems: i })}
+                                        indicators={correctIndicators}
+                                        setIndicators={(ind: IIndicatorEntity) => {
+                                            this.setState({ correctIndicators: ind });
+                                        }}
+                                    />
+                                </>
                             : <Typography variant="title">
-                                <T value="weightsAreNotCorrect"/>
+                                <T value="weightsAndGanttAreNotCorrect"/>
                             </Typography>}
                     </Paper>
                     : null
@@ -243,8 +262,9 @@ export class Practice extends React.Component<{}, IPracticeState> {
         this.setState({ wags, areWagsCorrect });
     }
 
-    private validateItems() {
+    private validateItemsAndIndicators() {
         const { createdItems, correctItems } = this.state;
+        let areItemsCorrect = true;
         const validatedItems: IItemsEntity[] = [];
         let foundItem: IItemsEntity | undefined;
         createdItems.map((createdItem: IItemsEntity) => {
@@ -258,11 +278,12 @@ export class Practice extends React.Component<{}, IPracticeState> {
                     createdItem.style = 'background-color: #5AB931';
                 } else {
                     createdItem.style = 'background-color: red';
+                    areItemsCorrect = false;
                 }
                 validatedItems.push(createdItem);
             }
         });
-        this.setState({ createdItems: validatedItems });
+        this.setState({ createdItems: validatedItems, areItemsCorrect });
     }
 
     private updateBlmSchema(ranking: IBlmEntity[]) {

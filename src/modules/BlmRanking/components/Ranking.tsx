@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { Grid } from '@material-ui/core';
 import { filter, reverse, sortBy } from 'lodash';
+import { IIndicatorEntity } from '../../../containers/Practice';
 import { GanttChart } from '../../BlmGanttChart';
 import { IBlmEntity } from '../../BlmGenerator/model';
 import { SortedStringRanking } from '../../SortedRankingInString';
@@ -15,6 +16,7 @@ interface IRankingProps {
 
 interface IRankingState {
     anchorEl: any;
+    indicators: IIndicatorEntity;
 }
 
 export class Ranking extends React.Component<IRankingProps, IRankingState> {
@@ -22,6 +24,12 @@ export class Ranking extends React.Component<IRankingProps, IRankingState> {
         super(props);
         this.state = {
             anchorEl: undefined,
+            indicators: {
+                LE: 0,
+                SL: 0,
+                T: 0,
+                TAlt: 0,
+            },
         };
     }
 
@@ -97,6 +105,8 @@ export class Ranking extends React.Component<IRankingProps, IRankingState> {
                                 }
                                 setGroups={(_: any) => null}
                                 setItems={(_: any) => null}
+                                indicators={this.state.indicators}
+                                setIndicators={(i: IIndicatorEntity) => this.setState({ indicators: i })}
                             />
                         </Grid>
                     </Grid>
