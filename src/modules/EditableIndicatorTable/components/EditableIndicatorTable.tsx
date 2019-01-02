@@ -5,6 +5,7 @@ import { Button, Grid, Table, TableBody, TableCell, TableRow, TextField } from '
 interface IEditableIndicatorTableProps {
     hidden?: boolean;
     setIndicators: (LE: number, SL: number, T: number) => void;
+    disabled: boolean;
 }
 
 interface IEditableIndicatorTableState {
@@ -39,14 +40,14 @@ export class EditableIndicatorTable extends React.Component<IEditableIndicatorTa
     }
 
     public render() {
-        const { hidden } = this.props;
+        const { hidden, disabled } = this.props;
         const { LE, SL, T, step, submitButton } = this.state;
         return (
             <Grid>
                 {hidden
                     ? null
                     : <Grid>
-                        Please to type indicators (accurate to two decimal places)
+                        {disabled ? null : <>Please to type indicators (accurate to two decimal places)</>}
                         <Table padding="checkbox">
                             <TableBody>
                                 <TableRow>
@@ -63,6 +64,7 @@ export class EditableIndicatorTable extends React.Component<IEditableIndicatorTa
                                             onChange={(e: any) => this.setState({ LE: e.target.value })}
                                             type="number"
                                             inputProps={{step}}
+                                            disabled={disabled}
                                         />
                                     </TableCell>
                                     <TableCell>
@@ -71,6 +73,7 @@ export class EditableIndicatorTable extends React.Component<IEditableIndicatorTa
                                             onChange={(e: any) => this.setState({ SL: e.target.value })}
                                             type="number"
                                             inputProps={{step}}
+                                            disabled={disabled}
                                         />
                                     </TableCell>
                                     <TableCell>
@@ -79,18 +82,19 @@ export class EditableIndicatorTable extends React.Component<IEditableIndicatorTa
                                             onChange={(e: any) => this.setState({ T: e.target.value })}
                                             type="number"
                                             inputProps={{step}}
+                                            disabled={disabled}
                                         />
                                     </TableCell>
                                 </TableRow>
                             </TableBody>
                         </Table>
-                        <Button
+                        {disabled ? null : <Button
                             variant="outlined"
                             disabled={!submitButton}
                             onClick={() => this.props.setIndicators(parseFloat(LE), parseFloat(SL), parseFloat(T))}
                         >
                             Submit and Finish
-                        </Button>
+                        </Button>}
                     </Grid>
                 }
             </Grid>

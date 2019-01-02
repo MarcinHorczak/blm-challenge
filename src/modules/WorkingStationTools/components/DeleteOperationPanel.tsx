@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { isNumber } from 'lodash';
 import { IGroupsEntity } from '../../BlmGanttChart/model';
 import { T } from '../../FormattedText';
 
@@ -38,9 +39,12 @@ export class DeleteOperationPanel extends React.Component<IDeleteOperationPanelP
                             onClose={() => this.setState({ isSelectGroupsOpened: false })}
                             onOpen={() => this.setState({ isSelectGroupsOpened: true })}
                             value={isNaN(selectedGroup) ? '' : selectedGroup}
-                            onChange={(event: any) => {
-                                this.setState({ isSelectGroupsOpened: false, selectedGroup: event.target.value });
-                            }}
+                            onChange={(event: any) => isNumber(event.target.value)
+                                    && this.setState({
+                                        isSelectGroupsOpened: false,
+                                        selectedGroup: event.target.value,
+                                    })
+                            }
                             style={{width: '250px'}}
                         >
                             <MenuItem value=""><em><T value="none"/></em></MenuItem>

@@ -110,7 +110,7 @@ class BlmChartComponent extends React.Component<IBlmChartProps, IBlmChartState> 
     private getOptions(settings: IGraphSettingsEntity) {
         return {
             interaction: {
-                navigationButtons: settings.navigationButtons,
+                navigationButtons: false,
                 keyboard: true,
                 hover: true,
                 dragView: settings.dragView,

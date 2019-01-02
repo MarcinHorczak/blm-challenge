@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@material-ui/core';
+import { isNumber } from 'lodash';
 import { IGroupsEntity } from '../../BlmGanttChart/model';
 import { IBlmEntity } from '../../BlmGenerator/model';
 import { T } from '../../FormattedText';
@@ -70,7 +71,8 @@ export class AddOperationPanel extends React.Component<IAddOperationPanelProps, 
                                 onClose={() => this.setState({ isSelectGroupsOpened: false })}
                                 onOpen={() => this.setState({ isSelectGroupsOpened: true })}
                                 value={isNaN(selectedGroup) ? '' : selectedGroup}
-                                onChange={(event: any) => this.props.setSelectedGroup(event.target.value)}
+                                onChange={(event: any) => isNumber(event.target.value)
+                                    && this.props.setSelectedGroup(event.target.value)}
                                 style={{width: '250px'}}
                             >
                                 <MenuItem value=""><em><T value="none"/></em></MenuItem>
@@ -89,7 +91,7 @@ export class AddOperationPanel extends React.Component<IAddOperationPanelProps, 
                         variant="outlined"
                         onClick={() => this.props.addItemToChart()}
                         fullWidth
-                        disabled={isNaN(selectedItem) || isNaN(selectedGroup)}
+                        disabled={!isNumber(selectedItem) || isNaN(selectedGroup)}
                     >
                         Add
                     </Button>

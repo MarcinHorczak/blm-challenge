@@ -1,8 +1,10 @@
 import * as React from 'react';
 
-import { Grid, Typography } from '@material-ui/core';
+import { Grid, Paper, Typography } from '@material-ui/core';
 import { filter, find, get, isUndefined, lowerCase, reverse, sortBy } from 'lodash';
 import { BlmChart } from '../modules/BlmChart';
+import { GanttChart } from '../modules/BlmGanttChart';
+import { IGroupsEntity, IItemsEntity } from '../modules/BlmGanttChart/model';
 import { BlmGenerator } from '../modules/BlmGenerator';
 import { IBlmEntity } from '../modules/BlmGenerator/model';
 import { SelectAlgoritm, SelectCycleTime } from '../modules/BlmRanking';
@@ -31,6 +33,11 @@ interface IPracticeState {
     update: boolean;
     indicators: IIndicatorEntity;
     isGanttFull: boolean;
+    isCorrectGanttOpened: boolean;
+    createdItems: IItemsEntity[];
+    createdGroups: IGroupsEntity[];
+    correctItems: IItemsEntity[];
+    correctGroups: IGroupsEntity[];
 }
 
 export class Practice extends React.Component<{}, IPracticeState> {
@@ -43,6 +50,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 isCorrect: false,
                 isError: false,
                 wag: '_',
+                correctValue: 0,
             };
         }
         this.state = {
@@ -60,6 +68,11 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 T: 0,
             },
             isGanttFull: false,
+            isCorrectGanttOpened: false,
+            createdGroups: [],
+            createdItems: [],
+            correctGroups: [],
+            correctItems: [],
         };
     }
 
@@ -75,7 +88,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 .map((el: IBlmEntity) =>
                     blm.push({
                         id: el.id,
-                        isSetted: el.isSetted,
+                        isSetted: false,
                         time: el.time,
                         wet: el.time,
                         depends: el.depends,
@@ -103,7 +116,17 @@ export class Practice extends React.Component<{}, IPracticeState> {
     }
 
     public render() {
-        const { blmModel, algoritm, cycleTime, ranking, isWagTableFull, isGanttFull } = this.state;
+        const {
+            blmModel,
+            algoritm,
+            cycleTime,
+            ranking,
+            isWagTableFull,
+            isGanttFull,
+            isCorrectGanttOpened,
+            createdGroups,
+            createdItems,
+        } = this.state;
         return (
             <Grid className="blm">
                 <Grid item container>
@@ -119,11 +142,13 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 <SelectAlgoritm
                     algoritm={algoritm}
                     setAlgoritm={(method: string) => this.setState({ algoritm: method, update: true })}
+                    disabled={isCorrectGanttOpened}
                 />
                 <SelectCycleTime
                     hidden={algoritm === ''}
                     getTime={(time: number) => this.setState({ cycleTime: time })}
                     time={cycleTime}
+                    disabled={isCorrectGanttOpened}
                 />
                 <EditableTable
                     hidden={algoritm === ''}
@@ -142,17 +167,36 @@ export class Practice extends React.Component<{}, IPracticeState> {
                     hidden={!isWagTableFull}
                     ranking={ranking}
                     setRanking={(r: IBlmEntity[]) => this.updateBlmSchema(r)}
+                    disabledTools={isCorrectGanttOpened}
+                    groups={createdGroups}
+                    items={createdItems}
+                    setGroups={(g: IGroupsEntity[]) => this.setState({ createdGroups: g })}
+                    setItems={(i: IItemsEntity[]) => this.setState({ createdItems: i })}
                 />
                 <EditableIndicatorTable
                     hidden={!isGanttFull}
                     setIndicators={(LE: number, SL: number, TT: number) => this.setIndicatorsAndValidate(LE, SL, TT)}
+                    disabled={isCorrectGanttOpened}
                 />
+                {isCorrectGanttOpened
+                    ? <Paper style={{backgroundColor: '#bfcefd', padding: '10px'}}>
+                        <Typography variant="title">Correct solution:</Typography>
+                        <GanttChart
+                            hidden={false}
+                            blmMinTime={cycleTime}
+                            ranking={ranking}
+                            setGroups={(g: IGroupsEntity[]) => this.setState({ correctGroups: g })}
+                            setItems={(i: IItemsEntity[]) => this.setState({ correctItems: i })}
+                        />
+                    </Paper>
+                    : null
+                }
             </Grid>
         );
     }
 
     private setIndicatorsAndValidate(LE: number, SL: number, TT: number) {
-        this.setState({ indicators: {LE, SL, T: TT} });
+        this.setState({ indicators: {LE, SL, T: TT}, isCorrectGanttOpened: true });
         this.validate();
     }
 
@@ -169,6 +213,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 } else {
                     wags[found.id].isCorrect = false;
                     wags[found.id].isError = true;
+                    wags[found.id].correctValue = get(modelItem, lowerCase(algoritm), 0);
                 }
             }
         }));

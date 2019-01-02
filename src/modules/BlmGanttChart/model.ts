@@ -4,6 +4,7 @@ export interface IItemsEntity {
     group: number;
     start: number;
     end: number;
+    style?: string;
 }
 
 export interface IGroupsEntity {

@@ -7,6 +7,7 @@ interface ISelectCycleTimeProps {
     getTime: (time: number) => void;
     time: number;
     hidden: boolean;
+    disabled?: boolean;
 }
 
 interface ISelectCycleTimeState {
@@ -24,7 +25,7 @@ export class SelectCycleTime extends React.Component<ISelectCycleTimeProps, ISel
     }
 
     public render() {
-        const { time, hidden } = this.props;
+        const { time, hidden, disabled } = this.props;
         const { isError, errorMessage } = this.state;
         return(
             <Grid container>
@@ -43,6 +44,7 @@ export class SelectCycleTime extends React.Component<ISelectCycleTimeProps, ISel
                         margin="normal"
                         error={isError}
                         helperText={errorMessage}
+                        disabled={disabled}
                     />
                 }
             </Grid>

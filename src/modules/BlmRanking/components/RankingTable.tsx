@@ -29,7 +29,7 @@ export class RankingTable extends React.Component<IRankingTableProps, {}> {
                             {blmRankingAlgoritm.map((a: IBlmRanking) => {
                                 return (
                                     !algoritm.localeCompare(a.name) &&
-                                    <>
+                                    <React.Fragment key={a.name}>
                                         <TableCell>{a.countBy}</TableCell>
                                         {
                                             ranking.map((item: IBlmEntity) =>
@@ -44,7 +44,7 @@ export class RankingTable extends React.Component<IRankingTableProps, {}> {
                                                 </TableCell>,
                                             )
                                         }
-                                    </>
+                                    </React.Fragment>
                                 );
                             })}
                         </TableRow>

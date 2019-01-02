@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Button, Grid, Table, TableBody, TableCell, TableRow, Typography } from '@material-ui/core';
+import { Button, Grid, Table, TableBody, TableCell, TableRow, Tooltip, Typography } from '@material-ui/core';
 import { numberOfMachines } from '../../../settings';
 import { IWagEntity } from '../model';
 
@@ -46,18 +46,33 @@ export class EditableTable extends React.Component<IEditableTableProps, IEditabl
                                         <TableCell>dj</TableCell>
                                         {this.tableContent().map((i: number) => {
                                             return (
-                                                <TableCell onClick={() => this.openDialog(i + 1)} key={i + 1}>
-                                                    <Typography className={
-                                                        wag[i + 1].isError
-                                                            ? 'error'
-                                                            : wag[i + 1].isCorrect
-                                                                ? 'correct'
-                                                                : ''
+                                                <Tooltip
+                                                    title={
+                                                        wag[i + 1].isCorrect || wag[i + 1].isError
+                                                            ? `Correct: ${wag[i + 1].correctValue}`
+                                                            : ''
                                                         }
+                                                    disableHoverListener={!wag[i + 1].isCorrect && !wag[i + 1].isError}
+                                                    disableFocusListener={!wag[i + 1].isCorrect && !wag[i + 1].isError}
+                                                    disableTouchListener={!wag[i + 1].isCorrect && !wag[i + 1].isError}
+                                                    key={i + 1}
+                                                >
+                                                    <TableCell
+                                                        onClick={() => (!wag[i + 1].isCorrect && !wag[i + 1].isError)
+                                                            && this.openDialog(i + 1)}
                                                     >
-                                                        {wag[i + 1].wag}
-                                                    </Typography>
-                                                </TableCell>
+                                                        <Typography className={
+                                                            wag[i + 1].isError
+                                                                ? 'error'
+                                                                : wag[i + 1].isCorrect
+                                                                    ? 'correct'
+                                                                    : ''
+                                                            }
+                                                        >
+                                                            {wag[i + 1].wag}
+                                                        </Typography>
+                                                    </TableCell>
+                                                </Tooltip>
                                             );
                                         })}
                                     </TableRow>

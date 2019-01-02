@@ -35,6 +35,7 @@ export class BlmRanking extends React.Component<IBlmRankingProps, IBlmRankingSta
                 <SelectAlgoritm
                     algoritm={algoritm}
                     setAlgoritm={(method: string) => this.setState({ algoritm: method })}
+                    disabled={false}
                 />
                 <SelectCycleTime
                     hidden={algoritm === ''}

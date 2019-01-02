@@ -5,6 +5,7 @@ import { T } from '../../FormattedText';
 interface ISelectAlgoritmProps {
     algoritm: string;
     setAlgoritm: (algoritm: string) => void;
+    disabled: boolean;
 }
 
 interface ISelectAlgoritmState {
@@ -21,7 +22,7 @@ export class SelectAlgoritm extends React.Component<ISelectAlgoritmProps, ISelec
 
     public render() {
         const { open } = this.state;
-        const { algoritm, setAlgoritm } = this.props;
+        const { algoritm, setAlgoritm, disabled } = this.props;
         return(
             <Grid container>
                 <FormControl>
@@ -33,6 +34,7 @@ export class SelectAlgoritm extends React.Component<ISelectAlgoritmProps, ISelec
                         value={algoritm}
                         onChange={(event: any) => setAlgoritm(event.target.value)}
                         className="blm-ranking-algoritm-select"
+                        disabled={disabled}
                     >
                         <MenuItem value=""><em><T value="none"/></em></MenuItem>
                         <MenuItem value="WET">WET</MenuItem>

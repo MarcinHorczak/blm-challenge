@@ -10,7 +10,9 @@ import { IGroupsEntity, IItemsEntity } from '../model';
 interface IGanttChartProps {
     blmMinTime: number;
     ranking: IBlmEntity[];
-    maxTime: number;
+    hidden?: boolean;
+    setItems: (items: IItemsEntity[]) => void;
+    setGroups: (groups: IGroupsEntity[]) => void;
 }
 
 interface IGanttChartState {
@@ -39,11 +41,11 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
     }
 
     public componentDidUpdate(prevProps: IGanttChartProps, _: any) {
-        const { ranking, blmMinTime, maxTime } = this.props;
+        const { ranking, blmMinTime, hidden } = this.props;
         if (
-            prevProps.ranking !== ranking
-            || prevProps.blmMinTime !== blmMinTime
-            || prevProps.maxTime !== maxTime
+            (prevProps.ranking !== ranking
+            || prevProps.blmMinTime !== blmMinTime)
+            && !hidden
         ) {
             this.updateTimeline(gantt);
         }
@@ -51,7 +53,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
 
     public render() {
         return (
-            <>
+            this.props.hidden ? null : <>
                 <div id="visualization" style={{width: '100%'}}/>
                 <Table padding="checkbox">
                     <TableBody>
@@ -79,7 +81,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
         const settedItems = this.setItems();
         const items = new vis.DataSet(settedItems);
         const groups = this.setGroups(settedItems);
-        const options = setOptions(this.props.maxTime);
+        const options = setOptions(this.props.blmMinTime);
 
         if (!isNull(container)) {
             gantt = new vis.Timeline(container, items, groups, options);
@@ -91,7 +93,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
         const settedItems = this.setItems();
         const items = new vis.DataSet(settedItems);
         const groups = this.setGroups(settedItems);
-        const options = setOptions(this.props.maxTime);
+        const options = setOptions(this.props.blmMinTime);
 
         timeline.setData({
             groups,
@@ -121,10 +123,10 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
             for (let i = 0; i < rankingLength; i++) {
                 isReady = true;
                 nextCycle = true;
-                if (ranking[i].time + actualCycleEndTime <= this.props.blmMinTime && !ranking[i].isSetted) {
+                if (ranking[i].time + actualCycleEndTime <= this.props.blmMinTime && !ranking[i].isChecked) {
                     ranking[i].depends.map((d: number) => {
                         for (let j = 0; j < rankingLength; j++) {
-                            if (d === ranking[j].id && !ranking[j].isSetted) {isReady = false; }
+                            if (d === ranking[j].id && !ranking[j].isChecked) {isReady = false; }
                         }
                     });
                     if (isReady) {
@@ -135,7 +137,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
                             start: actualCycleEndTime,
                             end: actualCycleEndTime + ranking[i].time,
                         });
-                        ranking[i].isSetted = true;
+                        ranking[i].isChecked = true;
                         idIterator++;
                         actualCycleEndTime += ranking[i].time;
                         i = -1;
@@ -145,22 +147,23 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
             }
             if (nextCycle) {
                 sumSTi += actualCycleEndTime;
-                sumSL += Math.pow((this.props.maxTime - actualCycleEndTime), 2);
+                sumSL += Math.pow((this.props.blmMinTime - actualCycleEndTime), 2);
                 lastT = actualCycleEndTime;
                 actualCycleEndTime = 0;
                 cycleNumber += 1;
             }
             isGanttChartCreated = true;
             ranking.map((item: IBlmEntity) => {
-                if (!item.isSetted) {isGanttChartCreated = false; }
+                if (!item.isChecked) {isGanttChartCreated = false; }
             });
         } while (!isGanttChartCreated);
         this.setState({
-            LE: Math.round((sumSTi / ((cycleNumber - 1) * this.props.maxTime)) * 10000) / 100,
+            LE: Math.round((sumSTi / ((cycleNumber - 1) * this.props.blmMinTime)) * 10000) / 100,
             SL: Math.round(Math.sqrt(sumSL) * 100) / 100,
-            T: this.props.maxTime * (cycleNumber - 1),
-            TAlt: (this.props.maxTime * (cycleNumber - 2)) + lastT,
+            T: this.props.blmMinTime * (cycleNumber - 1),
+            TAlt: (this.props.blmMinTime * (cycleNumber - 2)) + lastT,
         });
+        this.props.setItems(rankingItems);
         return rankingItems;
     }
 
@@ -177,6 +180,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
             });
             groups.sort((a: IGroupsEntity, b: IGroupsEntity) => a.id - b.id);
         }
+        this.props.setGroups(groups);
         return groups;
     }
 }

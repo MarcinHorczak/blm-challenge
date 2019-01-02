@@ -13,15 +13,15 @@ interface IEditableGanttChartProps {
     hidden?: boolean;
     ranking: IBlmEntity[];
     setRanking: (ranking: IBlmEntity[]) => void;
-}
-
-interface IEditableGanttChartState {
+    disabledTools: boolean;
     items: IItemsEntity[];
+    setItems: (items: IItemsEntity[]) => void;
     groups: IGroupsEntity[];
+    setGroups: (groups: IGroupsEntity[]) => void;
 }
 
 let gantt: vis.Timeline;
-export class EditableGanttChart extends React.Component<IEditableGanttChartProps, IEditableGanttChartState> {
+export class EditableGanttChart extends React.Component<IEditableGanttChartProps> {
     constructor(props: IEditableGanttChartProps) {
         super(props);
         this.state = {
@@ -30,34 +30,35 @@ export class EditableGanttChart extends React.Component<IEditableGanttChartProps
         };
     }
 
-    public componentDidUpdate(prevProps: IEditableGanttChartProps, prevState: IEditableGanttChartState) {
-        const { hidden } = this.props;
-        const { items, groups } = this.state;
+    public componentDidUpdate(prevProps: IEditableGanttChartProps, _: any) {
+        const { hidden, items, groups } = this.props;
         if (prevProps.hidden !== hidden) {
             this.initChart();
         }
-        if (prevState.items !== items || prevState.groups !== groups) {
+        if (prevProps.items !== items || prevProps.groups !== groups) {
             this.updateChart(gantt);
         }
     }
 
     public render() {
-        const { hidden, ranking } = this.props;
-        const { items, groups } = this.state;
+        const { hidden, ranking, disabledTools, items, groups } = this.props;
         return(
             <Grid>
                 {hidden
                     ? null
                     : <Grid>
-                        <WorkingStationTools
-                            groups={groups}
-                            items={items}
-                            setGroups={(g: IGroupsEntity[]) => this.setState({ groups: g })}
-                            setItems={(i: IItemsEntity[]) => this.setState({ items: i })}
-                            ranking={ranking}
-                            setRanking={(r: IBlmEntity[]) => this.props.setRanking(r)}
-                            setOptionTime={(t: number) => this.updateOptions(gantt, t)}
-                        />
+                        {disabledTools
+                            ? null
+                            : <WorkingStationTools
+                                groups={groups}
+                                items={items}
+                                setGroups={(g: IGroupsEntity[]) => this.props.setGroups(g)}
+                                setItems={(i: IItemsEntity[]) => this.props.setItems(i)}
+                                ranking={ranking}
+                                setRanking={(r: IBlmEntity[]) => this.props.setRanking(r)}
+                                setOptionTime={(t: number) => this.updateOptions(gantt, t)}
+                            />
+                        }
                         <div id="gantt"/>
                     </Grid>
                 }
@@ -76,8 +77,8 @@ export class EditableGanttChart extends React.Component<IEditableGanttChartProps
 
     private updateChart(timeline: vis.Timeline) {
         timeline.setData({
-            groups: this.state.groups,
-            items: this.state.items,
+            groups: this.props.groups,
+            items: this.props.items,
         });
     }
 

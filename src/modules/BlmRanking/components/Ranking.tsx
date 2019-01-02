@@ -95,7 +95,8 @@ export class Ranking extends React.Component<IRankingProps, IRankingState> {
                                     : algoritm === 'NOIF' ? noif
                                     : []
                                 }
-                                maxTime={blmMinTime}
+                                setGroups={(_: any) => null}
+                                setItems={(_: any) => null}
                             />
                         </Grid>
                     </Grid>
