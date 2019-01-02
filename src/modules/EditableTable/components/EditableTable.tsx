@@ -61,15 +61,14 @@ export class EditableTable extends React.Component<IEditableTableProps, IEditabl
                                                     <TableCell
                                                         onClick={() => (!wag[i + 1].isCorrect && !wag[i + 1].isError)
                                                             && this.openDialog(i + 1)}
+                                                        style={wag[i + 1].isError
+                                                            ? { backgroundColor: '#ff0000' }
+                                                            : wag[i + 1].isCorrect
+                                                                ? { backgroundColor: '#5AB931' }
+                                                                : {}
+                                                        }
                                                     >
-                                                        <Typography className={
-                                                            wag[i + 1].isError
-                                                                ? 'error'
-                                                                : wag[i + 1].isCorrect
-                                                                    ? 'correct'
-                                                                    : ''
-                                                            }
-                                                        >
+                                                        <Typography>
                                                             {wag[i + 1].wag}
                                                         </Typography>
                                                     </TableCell>

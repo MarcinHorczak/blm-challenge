@@ -20,7 +20,7 @@ export interface IIndicatorEntity {
     LE: number;
     SL: number;
     T: number;
-    TAlt?: number;
+    TAlt: number;
 }
 
 interface IPracticeState {
@@ -140,6 +140,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
     }
 
     public render() {
+        const d = 0.02;
         const {
             blmModel,
             algoritm,
@@ -153,6 +154,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
             areWagsCorrect,
             areItemsCorrect,
             correctIndicators,
+            indicators,
         } = this.state;
         return (
             <Grid className="blm">
@@ -204,11 +206,20 @@ export class Practice extends React.Component<{}, IPracticeState> {
                     hidden={!isGanttFull}
                     setIndicators={(LE: number, SL: number, TT: number) => this.setIndicatorsAndValidate(LE, SL, TT)}
                     disabled={isCorrectGanttOpened}
+                    correctIndicators={correctIndicators}
                 />
                 {isCorrectGanttOpened
                     ? <Paper style={{backgroundColor: '#bfcefd', padding: '10px'}}>
                         {areWagsCorrect
                             ? areItemsCorrect
+                            && indicators.LE + d >= correctIndicators.LE
+                            && indicators.LE - d <= correctIndicators.LE
+                            && indicators.SL + d >= correctIndicators.SL
+                            && indicators.SL - d <= correctIndicators.SL
+                            && ((indicators.T + d >= correctIndicators.T
+                            && indicators.T - d <= correctIndicators.T)
+                            || indicators.T + d >= correctIndicators.TAlt
+                            && indicators.T - d <= correctIndicators.TAlt)
                                 ? <Typography variant="title"><T value="wellDone"/></Typography>
                                 : <>
                                     <Typography variant="title"><T value="correctSolution"/></Typography>
@@ -235,7 +246,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
     }
 
     private setIndicatorsAndValidate(LE: number, SL: number, TT: number) {
-        this.setState({ indicators: {LE, SL, T: TT}, isCorrectGanttOpened: true });
+        this.setState({ indicators: {LE, SL, T: TT, TAlt: 0}, isCorrectGanttOpened: true });
         this.validateWags();
     }
 
