@@ -1,6 +1,27 @@
+@import './constants';
+@import './common';
 @import './graph';
+@import './ranking';
+@import './navigation-bar';
+@import './footer';
 
-body {
+@import '../../../node_modules/vis/dist/vis.min.css';
+@import url('https://fonts.googleapis.com/css?family=Fira+Sans');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+html, body {
     margin: 0;
     padding: 0;
+}
+
+.app-wrapper {
+    min-height: 100vh;
+}
+
+.error {
+    color: #ff0000!important;
+}
+
+.correct {
+    color: #00ff00!important;
 }

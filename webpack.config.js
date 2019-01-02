@@ -5,19 +5,9 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = (env = {}) => {
-
     const isDevBuild = !env.production;
-    const bundleOutputDir = env.bundleOutputDir;
     const templateInjectBefore  = env.templateInjectBefore;
     const templateFileName = env.templateFileName || 'index.html';
-
-    if (!(bundleOutputDir && String(bundleOutputDir))) {
-        throw new Error(`
-            Invalid bundle output dir.
-            Ensure the parameter --env.bundleOutputDir is set.
-            Expected string but "${bundleOutputDir}" is given.
-        `)
-    }
 
     return [{
         devServer: {
@@ -30,7 +20,7 @@ module.exports = (env = {}) => {
         entry: { 'main': './src/index.tsx' },
         resolve: { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
         output: {
-            path: path.join(__dirname, bundleOutputDir),
+            path: path.join(__dirname, 'build'),
             filename: '[name].js',
             publicPath: '/'
         },
@@ -46,18 +36,19 @@ module.exports = (env = {}) => {
                             : MiniCssExtractPlugin.loader,
                         'css-loader',
                         'sass-loader',
-                      ],
+                    ],
                 },
-                { test: /\.(png|jpg|jpeg|gif|svg)$/, use: 'url-loader?limit=25000' }
+                { test: /\.(png|jpg|jpeg|gif|svg)$/, use: 'url-loader?limit=25000' },
+                { test: /\.json$/, use: 'json-loader', use: 'json-loader' }
             ]
         },
         plugins: 
             [
-                 new MiniCssExtractPlugin({
+                new MiniCssExtractPlugin({
                     filename: isDevBuild ? '[name].css' : '[name].[hash].css',
                     chunkFilename: isDevBuild ? '[id].css' : '[id].[hash].css',
-                  }),
-                  new HtmlWebpackPlugin({
+                }),
+                new HtmlWebpackPlugin({
                     filename: templateFileName,
                     template: 'index.html',
                     favicon: 'favicon.ico',
@@ -65,12 +56,12 @@ module.exports = (env = {}) => {
                         templateInjectBefore
                     }
                 }),
-                new CleanWebpackPlugin([bundleOutputDir], { allowExternal: true } ),
+                new CleanWebpackPlugin(['build'], { allowExternal: true } ),
             ].concat(
                 isDevBuild ? [
                     new webpack.SourceMapDevToolPlugin({
                         filename: '[file].map',
-                        moduleFilenameTemplate: path.relative(bundleOutputDir, '[resourcePath]')
+                        moduleFilenameTemplate: path.relative('build', '[resourcePath]')
                     })
                 ] : []
             )

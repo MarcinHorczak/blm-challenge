@@ -1,0 +1,12 @@
+.nav-bar {
+    &-drawer {
+        .nav-bar-drawer {
+            &-item-link {
+                text-decoration: none;
+            }
+            &-item-text {
+                padding-left: 15px;
+            }
+        }
+    }
+}

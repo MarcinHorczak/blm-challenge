@@ -1,10 +1,9 @@
 .blm {
-    .blm-graph {
-        width: 100vw;
-
-        &-element {
-            border: 1px solid;
-            width: 100%;
+    padding: $container-padding;
+    width: 100%;
+    .blm {
+        &-generate-button {
+            flex: 1;
         }
     }
 }
