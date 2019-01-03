@@ -51,9 +51,9 @@
     "reselect": "^3.0.1"
   },
   "scripts": {
-    "build": "./node_modules/.bin/webpack --env.bundleOutputDir='./build'",
-    "dev": "./node_modules/.bin/webpack-dev-server --env.bundleOutputDir='./build'",
+    "build": "./node_modules/.bin/webpack --env.bundleOutputDir='/build'",
+    "dev": "./node_modules/.bin/webpack-dev-server --env.bundleOutputDir='/build'",
     "lint": "tslint 'src/**/*.ts{,x}'",
-    "heroku-postbuild": "webpack --env.bundleOutputDir='./build'"
+    "heroku-postbuild": "webpack --env.bundleOutputDir=./build --mode production"
   }
 }
