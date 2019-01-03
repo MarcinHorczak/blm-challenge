@@ -37,7 +37,8 @@ module.exports = (env = {}) => {
         entry: { 'main': './src/index.tsx' },
         resolve: { extensions: ['.js', '.jsx', '.ts', '.tsx'] },
         output: {
-            path: path.join(__dirname, bundleOutputDir),
+            // path: path.join(__dirname, bundleOutputDir),
+            path: path.resolve(`build`),
             filename: '[name].js',
             publicPath: './'
         },
