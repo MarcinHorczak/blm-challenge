@@ -107,6 +107,7 @@ export class Ranking extends React.Component<IRankingProps, IRankingState> {
                                 setItems={(_: any) => null}
                                 indicators={this.state.indicators}
                                 setIndicators={(i: IIndicatorEntity) => this.setState({ indicators: i })}
+                                containerName="Example"
                             />
                         </Grid>
                     </Grid>

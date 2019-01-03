@@ -17,14 +17,11 @@ interface IGanttChartProps {
     setGroups: (groups: IGroupsEntity[]) => void;
     indicators: IIndicatorEntity;
     setIndicators: (indicators: IIndicatorEntity) => void;
-}
-
-interface IGanttChartState {
-    timeline: vis.Timeline | undefined;
+    containerName: string;
 }
 
 let gantt: vis.Timeline;
-export class GanttChart extends React.Component<IGanttChartProps, IGanttChartState> {
+export class GanttChart extends React.Component<IGanttChartProps, {}> {
     constructor(props: IGanttChartProps) {
         super(props);
         this.state = {
@@ -83,7 +80,6 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
 
         if (!isNull(container)) {
             gantt = new vis.Timeline(container, items, groups, options);
-            this.setState({ timeline: gantt });
         }
     }
 
@@ -108,7 +104,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
         let lastT = 0;
 
         // gantt chart variables
-        const { ranking } = this.props;
+        const { ranking, containerName } = this.props;
         const rankingItems: IItemsEntity[] = [];
         let actualCycleEndTime: number = 0;
         let cycleNumber: number = 1;
@@ -156,13 +152,16 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
             });
         } while (!isGanttChartCreated);
 
-        const indicators: IIndicatorEntity = {
-            LE: Math.round((sumSTi / ((cycleNumber - 1) * this.props.blmMinTime)) * 10000) / 100,
-            SL: Math.round(Math.sqrt(sumSL) * 100) / 100,
-            T: this.props.blmMinTime * (cycleNumber - 1),
-            TAlt: (this.props.blmMinTime * (cycleNumber - 2)) + lastT,
-        };
-        this.props.setIndicators(indicators);
+        if (containerName === 'Practice' || (containerName === 'Example' && this.props.indicators.T === 0)) {
+            const indicators: IIndicatorEntity = {
+                LE: Math.round((sumSTi / ((cycleNumber - 1) * this.props.blmMinTime)) * 10000) / 100,
+                SL: Math.round(Math.sqrt(sumSL) * 100) / 100,
+                T: this.props.blmMinTime * (cycleNumber - 1),
+                TAlt: (this.props.blmMinTime * (cycleNumber - 2)) + lastT,
+            };
+            this.props.setIndicators(indicators);
+        }
+
         this.props.setItems(rankingItems);
         return rankingItems;
     }

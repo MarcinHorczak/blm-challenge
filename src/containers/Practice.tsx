@@ -233,6 +233,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
                                         setIndicators={(ind: IIndicatorEntity) => {
                                             this.setState({ correctIndicators: ind });
                                         }}
+                                        containerName="Practice"
                                     />
                                 </>
                             : <Typography variant="title">
