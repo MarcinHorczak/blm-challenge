@@ -32,7 +32,8 @@ export class AddOperationPanel extends React.Component<IAddOperationPanelProps, 
     }
 
     public render() {
-        const { selectedItem, ranking, selectedGroup, groups } = this.props;
+        const { selectedItem, selectedGroup, groups } = this.props;
+        const sortedRanking = [...this.props.ranking];
         const { isSelectItemsOpened, isSelectGroupsOpened } = this.state;
         return(
             <>
@@ -49,7 +50,7 @@ export class AddOperationPanel extends React.Component<IAddOperationPanelProps, 
                                 style={{width: '250px'}}
                             >
                                 <MenuItem value=""><em><T value="none"/></em></MenuItem>
-                                {ranking
+                                {sortedRanking
                                     .sort((a: IBlmEntity, b: IBlmEntity) => a.id - b.id)
                                     .filter((item: IBlmEntity) => !item.isSetted)
                                     .map((item: IBlmEntity) => {

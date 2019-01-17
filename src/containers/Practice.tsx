@@ -29,6 +29,7 @@ interface IPracticeState {
     cycleTime: number;
     wags: IWagEntity[];
     ranking: IBlmEntity[];
+    correctRanking: IBlmEntity[];
     validations: string[];
     isWagTableFull: boolean;
     update: boolean;
@@ -63,6 +64,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
             cycleTime: 12,
             wags,
             ranking: [],
+            correctRanking: [],
             validations: [],
             isWagTableFull: false,
             update: false,
@@ -101,6 +103,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
         if (update && isWagTableFull) {
             const blm: IBlmEntity[] = [];
             const ranking: IBlmEntity[] = [];
+            const correctRanking: IBlmEntity[] = [];
             const sortedWags: IWagEntity[] = reverse(sortBy(reverse(sortBy(wags, ['id'])), ['wag']));
 
             blmModel.map((column: IBlmEntity[]) =>
@@ -127,11 +130,12 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 for (let i = 0; i < numberOfMachines; i++) {
                     if (wag.id === blm[i].id) {
                         ranking.push(blm[i]);
+                        correctRanking.push(blm[i]);
                     }
                 }
             });
 
-            this.setState({ ranking, update: false });
+            this.setState({ ranking, update: false, correctRanking });
         }
 
         if (prevState.correctItems !== correctItems && areWagsCorrect) {
@@ -154,6 +158,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
             areWagsCorrect,
             areItemsCorrect,
             correctIndicators,
+            correctRanking,
             indicators,
         } = this.state;
         return (
@@ -189,7 +194,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
                 <SortedStringRanking
                     hidden={!isWagTableFull}
                     algoritm={algoritm}
-                    blm={ranking}
+                    blm={correctRanking}
                     disableStrikethrough={false}
                 />
                 <EditableGanttChart
@@ -226,7 +231,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
                                     <GanttChart
                                         hidden={false}
                                         blmMinTime={cycleTime}
-                                        ranking={ranking}
+                                        ranking={correctRanking}
                                         setGroups={(g: IGroupsEntity[]) => this.setState({ correctGroups: g })}
                                         setItems={(i: IItemsEntity[]) => this.setState({ correctItems: i })}
                                         indicators={correctIndicators}
@@ -280,7 +285,7 @@ export class Practice extends React.Component<{}, IPracticeState> {
         const validatedItems: IItemsEntity[] = [];
         let foundItem: IItemsEntity | undefined;
         createdItems.map((createdItem: IItemsEntity) => {
-            foundItem = correctItems.find((correctItem: IItemsEntity) => correctItem.id + 1 === createdItem.id);
+            foundItem = correctItems.find((correctItem: IItemsEntity) => correctItem.content === createdItem.content);
             if (!isUndefined(foundItem)) {
                 if (
                     foundItem.start === createdItem.start

@@ -95,6 +95,7 @@ export class WorkingStationTools extends React.Component<IWorkingStationToolsPro
 
     private addItemToChart() {
         const ranking = [...this.props.ranking];
+
         const { selectedGroup, selectedItem } = this.state;
         const items = [...this.props.items];
         const element = ranking.find((obj: IBlmEntity) => obj.id === selectedItem);
@@ -102,7 +103,9 @@ export class WorkingStationTools extends React.Component<IWorkingStationToolsPro
         if (!isNil(element)) {
             rankingElement = element;
         }
-        ranking[rankingElement.id - 1].isSetted = true;
+
+        // ranking[rankingElement.id - 1].isSetted = true;
+        ranking.forEach((item: IBlmEntity) => item.id === selectedItem ? item.isSetted = true : null);
 
         let lastGroupValue = 0;
         const maxTimeGroupValue = maxBy(items.filter((item: IItemsEntity) => item.group === selectedGroup), 'end');
@@ -118,6 +121,7 @@ export class WorkingStationTools extends React.Component<IWorkingStationToolsPro
             end: rankingElement.time + lastGroupValue,
         });
         this.props.setItems(items);
+
         this.props.setRanking(ranking);
         this.setState({ isAddOperationPanelOpened: false, selectedItem: NaN, selectedGroup: NaN });
         let maxTimeGlobalValue = 0;
