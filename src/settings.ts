@@ -1,9 +1,9 @@
-export const numberOfMachines = 10;
+export const numberOfMachines = 15;
 // export const numberOfMachines = 4;
 // export const minLineLength = 10;
 export const minLineLength = 2;
-export const maxLineLength = 6;
-export const lineHeight = 5;
+export const maxLineLength = 10;
+export const lineHeight = 3;
 // export const lineHeight = 2;
 export const maxBlmElementSize = 80;
 export const minBlmElementSize = 60;
