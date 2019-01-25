@@ -15,17 +15,27 @@ interface IGanttChartProps {
     hidden?: boolean;
     setItems: (items: IItemsEntity[]) => void;
     setGroups: (groups: IGroupsEntity[]) => void;
-    indicators: IIndicatorEntity;
     setIndicators: (indicators: IIndicatorEntity) => void;
     containerName: string;
 }
 
+interface IGanttChartState {
+    timeline: vis.Timeline | undefined;
+    indicators: IIndicatorEntity;
+}
+
 let gantt: vis.Timeline;
-export class GanttChart extends React.Component<IGanttChartProps, {}> {
+export class GanttChart extends React.Component<IGanttChartProps, IGanttChartState> {
     constructor(props: IGanttChartProps) {
         super(props);
         this.state = {
             timeline: undefined,
+            indicators: {
+                LE: 0,
+                SL: 0,
+                T: 0,
+                TAlt: 0,
+            },
         };
     }
 
@@ -53,15 +63,15 @@ export class GanttChart extends React.Component<IGanttChartProps, {}> {
                         <TableRow>
                             <TableCell><T value="indicator"/>:</TableCell>
                             <TableCell>LE</TableCell>
-                            <TableCell>SL</TableCell>
+                            <TableCell>SI</TableCell>
                             <TableCell>T</TableCell>
                         </TableRow>
                         <TableRow>
                             <TableCell><T value="value"/>:</TableCell>
-                            <TableCell>{this.props.indicators.LE} %</TableCell>
-                            <TableCell>{this.props.indicators.SL}</TableCell>
+                            <TableCell>{this.state.indicators.LE} %</TableCell>
+                            <TableCell>{this.state.indicators.SL}</TableCell>
                             <TableCell>
-                                {this.props.indicators.T} <T value="or"/> {this.props.indicators.TAlt}
+                                {this.state.indicators.T} <T value="or"/> {this.state.indicators.TAlt}
                             </TableCell>
                         </TableRow>
                     </TableBody>
@@ -152,7 +162,7 @@ export class GanttChart extends React.Component<IGanttChartProps, {}> {
             });
         } while (!isGanttChartCreated);
 
-        if (containerName === 'Practice' || (containerName === 'Example' && this.props.indicators.T === 0)) {
+        if (containerName === 'Practice' || (containerName === 'Example')) {
             const indicators: IIndicatorEntity = {
                 LE: Math.round((sumSTi / ((cycleNumber - 1) * this.props.blmMinTime)) * 10000) / 100,
                 SL: Math.round(Math.sqrt(sumSL) * 100) / 100,
@@ -160,6 +170,7 @@ export class GanttChart extends React.Component<IGanttChartProps, {}> {
                 TAlt: (this.props.blmMinTime * (cycleNumber - 2)) + lastT,
             };
             this.props.setIndicators(indicators);
+            this.setState({ indicators });
         }
 
         this.props.setItems(rankingItems);

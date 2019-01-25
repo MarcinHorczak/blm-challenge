@@ -16,7 +16,6 @@ interface IRankingProps {
 
 interface IRankingState {
     anchorEl: any;
-    indicators: IIndicatorEntity;
 }
 
 export class Ranking extends React.Component<IRankingProps, IRankingState> {
@@ -24,12 +23,6 @@ export class Ranking extends React.Component<IRankingProps, IRankingState> {
         super(props);
         this.state = {
             anchorEl: undefined,
-            indicators: {
-                LE: 0,
-                SL: 0,
-                T: 0,
-                TAlt: 0,
-            },
         };
     }
 
@@ -105,8 +98,7 @@ export class Ranking extends React.Component<IRankingProps, IRankingState> {
                                 }
                                 setGroups={(_: any) => null}
                                 setItems={(_: any) => null}
-                                indicators={this.state.indicators}
-                                setIndicators={(i: IIndicatorEntity) => this.setState({ indicators: i })}
+                                setIndicators={(_: IIndicatorEntity) => null}
                                 containerName="Example"
                             />
                         </Grid>

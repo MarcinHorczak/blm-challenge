@@ -234,7 +234,6 @@ export class Practice extends React.Component<{}, IPracticeState> {
                                         ranking={correctRanking}
                                         setGroups={(g: IGroupsEntity[]) => this.setState({ correctGroups: g })}
                                         setItems={(i: IItemsEntity[]) => this.setState({ correctItems: i })}
-                                        indicators={correctIndicators}
                                         setIndicators={(ind: IIndicatorEntity) => {
                                             this.setState({ correctIndicators: ind });
                                         }}
