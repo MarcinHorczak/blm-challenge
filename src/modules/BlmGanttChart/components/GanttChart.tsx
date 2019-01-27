@@ -186,7 +186,7 @@ export class GanttChart extends React.Component<IGanttChartProps, IGanttChartSta
         for (let i = 1; i <= numberOfGroups; i++) {
             groups.push({
                 id: i,
-                content: `Operation ${i}`,
+                content: `Work Station ${i}`,
             });
             groups.sort((a: IGroupsEntity, b: IGroupsEntity) => a.id - b.id);
         }
